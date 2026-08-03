@@ -1,82 +1,26 @@
-const express = require('express');
-const app = express();
-const PORT = process.env.PORT || 3000;
+const { Telegraf, Markup } = require('telegraf');
 
 // ===== التوكن =====
 const BOT_TOKEN = "8909739497:AAHBUGLmeligI-TX3kZKlQ_8nTZK61TKVtI";
-const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
+const bot = new Telegraf(BOT_TOKEN);
 
-// ===== البيانات =====
+// ===== البيانات الوهمية =====
 let fakeAccounts = [
     "+1 555 123 4567",
     "+1 555 234 5678",
     "+1 555 345 6789",
     "+1 555 456 7890"
 ];
+
 let balance = 4.36;
 const userId = "1170411845";
-const refLink = "https://t.me/YourBot?start=ref123456";
+const refLink = "https://t.me/aaaasvvvbot?start=ref123456";
 
-// ===== دالة اختبار التوكن =====
-async function testToken() {
-    try {
-        const response = await fetch(`${TELEGRAM_API}/getMe`);
-        const data = await response.json();
-        if (data.ok) {
-            console.log(`✅ التوكن صحيح! البوت: @${data.result.username}`);
-            return true;
-        } else {
-            console.log(`❌ التوكن غير صحيح: ${data.description}`);
-            return false;
-        }
-    } catch (err) {
-        console.log(`❌ فشل الاتصال: ${err.message}`);
-        return false;
-    }
-}
-
-// ===== دالة إرسال رسالة =====
-async function sendMessage(chatId, text, keyboard = null) {
-    try {
-        const payload = {
-            chat_id: chatId,
-            text: text,
-            parse_mode: 'Markdown',
-            disable_web_page_preview: true
-        };
-        if (keyboard) payload.reply_markup = keyboard;
-        
-        const response = await fetch(`${TELEGRAM_API}/sendMessage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        return await response.json();
-    } catch (err) {
-        console.error('خطأ في الإرسال:', err);
-        return null;
-    }
-}
-
-// ===== بناء لوحة المفاتيح =====
-function getKeyboard() {
-    return {
-        inline_keyboard: [
-            [{ text: '➕ إضافة رقم وهمي', callback_data: 'add' }],
-            [{ text: '✖ حذف آخر رقم', callback_data: 'remove' }],
-            [{ text: '💳 شحن رصيد', callback_data: 'charge' }],
-            [{ text: '📋 نسخ الرابط', callback_data: 'copy' }],
-            [{ text: '📢 القناة الرسمية', callback_data: 'channel' }],
-            [{ text: '🛠 فريق الدعم', callback_data: 'support' }]
-        ]
-    };
-}
-
-// ===== بناء رسالة القائمة =====
-function getMainMenu() {
+// ===== دالة عرض القائمة الرئيسية =====
+function mainMenu() {
     let accountsList = fakeAccounts.map((num, i) => `${i+1}. ${num}`).join('\n');
     if (!fakeAccounts.length) accountsList = '❌ لا توجد حسابات';
-    
+
     return {
         text: `
 📋 *القائمة الرئيسية*
@@ -91,139 +35,146 @@ ${accountsList}
 🔗 *الإحالة الخاص بك*
 \`${refLink}\`
         `,
-        keyboard: getKeyboard()
+        buttons: Markup.inlineKeyboard([
+            [Markup.button.callback('➕ إضافة رقم وهمي', 'add_account')],
+            [Markup.button.callback('✖ حذف آخر رقم', 'remove_account')],
+            [Markup.button.callback('💳 شحن رصيد', 'charge_balance')],
+            [Markup.button.callback('📋 نسخ الرابط', 'copy_ref')],
+            [Markup.button.callback('📢 القناة الرسمية', 'channel')],
+            [Markup.button.callback('🛠 فريق الدعم', 'support')]
+        ], { columns: 2 })
     };
 }
 
-// ===== معالجة الأوامر =====
-app.use(express.json());
-
-app.post('/webhook', async (req, res) => {
-    const { message, callback_query } = req.body;
-    
-    // معالجة الضغط على الأزرار
-    if (callback_query) {
-        const chatId = callback_query.message.chat.id;
-        const msgId = callback_query.message.message_id;
-        const data = callback_query.data;
-        
-        if (data === 'add') {
-            const randomNum = `+1 ${Math.floor(Math.random()*900+100)} ${Math.floor(Math.random()*900+100)} ${Math.floor(Math.random()*9000+1000)}`;
-            fakeAccounts.push(randomNum);
-            const menu = getMainMenu();
-            await sendMessage(chatId, menu.text, menu.keyboard);
-            await fetch(`${TELEGRAM_API}/answerCallbackQuery`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ callback_query_id: callback_query.id, text: `✅ تم إضافة: ${randomNum}` })
-            });
-        }
-        else if (data === 'remove') {
-            if (fakeAccounts.length === 0) {
-                await fetch(`${TELEGRAM_API}/answerCallbackQuery`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ callback_query_id: callback_query.id, text: '❌ لا يوجد أرقام' })
-                });
-                return res.sendStatus(200);
-            }
-            const removed = fakeAccounts.pop();
-            const menu = getMainMenu();
-            await sendMessage(chatId, menu.text, menu.keyboard);
-            await fetch(`${TELEGRAM_API}/answerCallbackQuery`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ callback_query_id: callback_query.id, text: `🗑️ تم حذف: ${removed}` })
-            });
-        }
-        else if (data === 'charge') {
-            await fetch(`${TELEGRAM_API}/answerCallbackQuery`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ callback_query_id: callback_query.id, text: '💰 أرسل المبلغ' })
-            });
-            await sendMessage(chatId, '💰 أرسل المبلغ الذي تريد شحنه (رقم فقط):\nمثال: 10');
-        }
-        else if (data === 'copy') {
-            await fetch(`${TELEGRAM_API}/answerCallbackQuery`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ callback_query_id: callback_query.id, text: '📋 تم النسخ' })
-            });
-            await sendMessage(chatId, `📋 رابط الإحالة:\n\`${refLink}\``);
-        }
-        else if (data === 'channel') {
-            await fetch(`${TELEGRAM_API}/answerCallbackQuery`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ callback_query_id: callback_query.id, text: '📢' })
-            });
-            await sendMessage(chatId, '📢 قناة البوت: @YourChannel');
-        }
-        else if (data === 'support') {
-            await fetch(`${TELEGRAM_API}/answerCallbackQuery`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ callback_query_id: callback_query.id, text: '🛠' })
-            });
-            await sendMessage(chatId, '🛠 فريق الدعم: @YourSupport');
-        }
-        
-        return res.sendStatus(200);
-    }
-    
-    // معالجة الرسائل النصية
-    if (message && message.text) {
-        const chatId = message.chat.id;
-        const text = message.text;
-        
-        if (text === '/start' || text === '/menu') {
-            const menu = getMainMenu();
-            await sendMessage(chatId, menu.text, menu.keyboard);
-            if (text === '/start') {
-                await sendMessage(chatId, '👋 أهلاً بك في بوت الحسابات الوهمية!');
-            }
-            return res.sendStatus(200);
-        }
-        
-        // معالجة الشحن
-        if (!isNaN(text) && parseFloat(text) > 0) {
-            const amount = parseFloat(text);
-            balance += amount;
-            await sendMessage(chatId, `✅ تم شحن $${amount}\n💰 الرصيد الجديد: $${balance.toFixed(2)}`);
-            const menu = getMainMenu();
-            await sendMessage(chatId, menu.text, menu.keyboard);
-            return res.sendStatus(200);
-        }
-        
-        await sendMessage(chatId, '❌ أمر غير معروف. استخدم /menu');
-    }
-    
-    res.sendStatus(200);
+// ===== أمر /start =====
+bot.start(async (ctx) => {
+    const menu = mainMenu();
+    await ctx.reply('👋 أهلاً بك في بوت الحسابات الوهمية!', {
+        parse_mode: 'Markdown'
+    });
+    await ctx.reply(menu.text, { 
+        parse_mode: 'Markdown',
+        ...menu.buttons,
+        disable_web_page_preview: true
+    });
 });
 
-// ===== تشغيل الخادم =====
-app.listen(PORT, async () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    
-    // اختبار التوكن فور التشغيل
-    const isValid = await testToken();
-    if (!isValid) {
-        console.log('⚠️ البوت لن يعمل حتى يتم إصلاح التوكن!');
+// ===== أمر /menu =====
+bot.command('menu', async (ctx) => {
+    const menu = mainMenu();
+    await ctx.reply(menu.text, { 
+        parse_mode: 'Markdown',
+        ...menu.buttons,
+        disable_web_page_preview: true
+    });
+});
+
+// ===== زر إضافة رقم =====
+bot.action('add_account', async (ctx) => {
+    const randomNum = `+1 ${Math.floor(Math.random()*900+100)} ${Math.floor(Math.random()*900+100)} ${Math.floor(Math.random()*9000+1000)}`;
+    fakeAccounts.push(randomNum);
+    await ctx.answerCbQuery(`✅ تم إضافة رقم: ${randomNum}`);
+    const menu = mainMenu();
+    await ctx.editMessageText(menu.text, {
+        parse_mode: 'Markdown',
+        ...menu.buttons,
+        disable_web_page_preview: true
+    });
+});
+
+// ===== زر حذف آخر رقم =====
+bot.action('remove_account', async (ctx) => {
+    if (fakeAccounts.length === 0) {
+        await ctx.answerCbQuery('❌ لا يوجد أرقام للحذف');
         return;
     }
+    const removed = fakeAccounts.pop();
+    await ctx.answerCbQuery(`🗑️ تم حذف: ${removed}`);
+    const menu = mainMenu();
+    await ctx.editMessageText(menu.text, {
+        parse_mode: 'Markdown',
+        ...menu.buttons,
+        disable_web_page_preview: true
+    });
+});
+
+// ===== زر شحن رصيد =====
+bot.action('charge_balance', async (ctx) => {
+    await ctx.answerCbQuery();
+    await ctx.reply('💰 أدخل المبلغ الذي تريد شحنه (رقم فقط):\nمثال: 10');
+});
+
+// ===== استقبال رسائل الشحن =====
+bot.on('text', async (ctx) => {
+    const text = ctx.message.text;
     
-    // إعداد Webhook
-    const webhookUrl = `https://telegram-accounts.onrender.com/webhook`;
-    try {
-        const response = await fetch(`${TELEGRAM_API}/setWebhook?url=${webhookUrl}`);
-        const data = await response.json();
-        if (data.ok) {
-            console.log(`✅ Webhook set to: ${webhookUrl}`);
-        } else {
-            console.log(`❌ Webhook error: ${data.description}`);
-        }
-    } catch (err) {
-        console.log(`❌ Webhook setup failed: ${err.message}`);
+    // نتجاهل الأوامر
+    if (text.startsWith('/')) return;
+    
+    if (!isNaN(text) && parseFloat(text) > 0) {
+        const amount = parseFloat(text);
+        balance += amount;
+        await ctx.reply(`✅ تم شحن رصيدك بمبلغ $${amount}\n💰 الرصيد الجديد: $${balance.toFixed(2)}`);
+        const menu = mainMenu();
+        await ctx.reply(menu.text, {
+            parse_mode: 'Markdown',
+            ...menu.buttons,
+            disable_web_page_preview: true
+        });
+    } else {
+        await ctx.reply('❌ أمر غير معروف. استخدم /menu للقائمة الرئيسية');
     }
+});
+
+// ===== زر نسخ الرابط =====
+bot.action('copy_ref', async (ctx) => {
+    await ctx.answerCbQuery('📋 تم نسخ رابط الإحالة');
+    await ctx.reply(`📋 رابط الإحالة الخاص بك:\n\`${refLink}\``, {
+        parse_mode: 'Markdown'
+    });
+});
+
+// ===== زر القناة =====
+bot.action('channel', async (ctx) => {
+    await ctx.answerCbQuery();
+    await ctx.reply('📢 القناة الرسمية: @YourChannel');
+});
+
+// ===== زر الدعم =====
+bot.action('support', async (ctx) => {
+    await ctx.answerCbQuery();
+    await ctx.reply('🛠 فريق الدعم: @YourSupport');
+});
+
+// ===== تشغيل البوت (Polling) =====
+async function startBot() {
+    try {
+        // إلغاء أي Webhook سابق
+        await bot.telegram.setWebhook();
+        console.log('✅ Webhook removed, using polling...');
+        
+        await bot.launch();
+        console.log('✅ Bot is running successfully!');
+        console.log(`🤖 Bot username: @${bot.botInfo?.username || 'unknown'}`);
+        console.log(`🆔 Bot ID: ${bot.botInfo?.id || 'unknown'}`);
+        console.log('📡 Polling for updates...');
+    } catch (err) {
+        console.error('❌ Failed to start bot:', err.message);
+        if (err.message.includes('401')) {
+            console.error('⚠️ توكن البوت غير صحيح. تأكد من التوكن من @BotFather');
+        }
+        process.exit(1);
+    }
+}
+
+startBot();
+
+// ===== إيقاف البوت =====
+process.once('SIGINT', () => {
+    bot.stop('SIGINT');
+    console.log('🛑 Bot stopped');
+});
+process.once('SIGTERM', () => {
+    bot.stop('SIGTERM');
+    console.log('🛑 Bot stopped');
 });
