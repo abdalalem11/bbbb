@@ -1,10 +1,11 @@
 services:
   - type: web
     name: telegram-accounts
-    runtime: static
-    buildCommand: ""
-    staticPublishPath: .
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: BOT_TOKEN
+        value: 8584318691:AAGHfeUE57_3z04oI91gHiy6MqNSn-RLj5k
+      - key: CHAT_ID
+        value: 1170411845
