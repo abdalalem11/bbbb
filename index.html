@@ -9,7 +9,6 @@
 <body>
     <div class="container">
 
-        <!-- القائمة الرئيسية -->
         <div class="card main-card">
             <h2>📋 القائمة الرئيسية</h2>
             <p><span>🆔 ايدي حسابك:</span> <strong id="userId">8505541555</strong></p>
@@ -18,23 +17,20 @@
             <div class="btn-group">
                 <button class="btn" onclick="alert('قناة البوت: @FakeBotChannel')">1. قناة البوت الرسمية</button>
                 <button class="btn" onclick="alert('قناة الاكتمالات: @FakeComplete')">2. قناة الاكتمالات</button>
+                <button class="btn test-btn" onclick="testBot()">🧪 اختبار البوت</button>
             </div>
             <p class="time">🕒 12:19 ص</p>
         </div>
 
-        <!-- حسابات تليجرام جاهزة (أرقام وهمية) -->
         <div class="card accounts-card">
             <h3>📱 حسابات تليجرام جاهزة</h3>
-            <ul id="accountsList">
-                <!-- سيتم تعبئتها عبر JS -->
-            </ul>
+            <ul id="accountsList"></ul>
             <div class="btn-group">
                 <button class="btn small" onclick="addFakeAccount()">➕ إضافة رقم وهمي</button>
                 <button class="btn small danger" onclick="removeLastAccount()">✖ حذف آخر رقم</button>
             </div>
         </div>
 
-        <!-- أزرار الخدمات -->
         <div class="card services-card">
             <div class="service-grid">
                 <button class="service-btn" onclick="alert('الوكلاء: قائمة وهمية')">👥 الوكالء</button>
@@ -45,7 +41,6 @@
             </div>
         </div>
 
-        <!-- الإحالة -->
         <div class="card referral-card">
             <h3>🔗 الإحالة الخاص بك</h3>
             <p>رابط الإحالة: <code id="refLink">https://t.me/FakeBot?start=ref123456</code></p>
@@ -53,7 +48,6 @@
         </div>
 
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
