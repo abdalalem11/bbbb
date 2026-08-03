@@ -7,7 +7,7 @@ const bot = new Telegraf(BOT_TOKEN);
 
 // ===== البيانات =====
 const userId = "8505541555";
-const adminUsername = "@SSSTlF";
+const refLink = "https://t.me/aaaasvvvbot?start=ref123456";
 
 // ===== خادم الويب (لـ Render) =====
 const app = express();
@@ -15,10 +15,10 @@ const PORT = process.env.PORT || 10000;
 
 app.get('/', (req, res) => {
     res.send(`
-        <h1>🔥 Hacker Academy Bot</h1>
+        <h1>🔥 منصة عبود التعليمية الشاملة</h1>
         <p>🤖 @aaaasvvvbot</p>
-        <p>👑 تحت إشراف ${adminUsername}</p>
-        <p>📚 افخم بوت تعليم برمجة واختراقات</p>
+        <p>👑 تحت إشراف عبود @SSSTlF</p>
+        <p>📚 200 درس تعليمي في 10 أقسام</p>
     `);
 });
 
@@ -26,274 +26,268 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log(`✅ Web server running on port ${PORT}`);
 });
 
-// ===== القائمة الرئيسية الفخمة =====
+// ===== الأقسام التعليمية (10 أقسام × 20 زر = 200 درس) =====
+const SECTIONS = {
+    basics: {
+        title: '📘 أساسيات البرمجة',
+        emoji: '📘',
+        description: 'أساسيات البرمجة للمبتدئين',
+        lessons: [
+            'مقدمة البرمجة', 'المتغيرات', 'أنواع البيانات', 'الشروط',
+            'الحلقات', 'الدوال', 'الكلاسات', 'معالجة الأخطاء',
+            'الملفات', 'المكتبات', 'Git', 'GitHub',
+            'أساسيات الشبكات', 'TCP/IP', 'HTTP', 'DNS',
+            'Linux', 'Bash', 'Docker', 'APIs'
+        ]
+    },
+    python: {
+        title: '🐍 بايثون',
+        emoji: '🐍',
+        description: 'تعلم لغة بايثون من الصفر للاحتراف',
+        lessons: [
+            'مقدمة بايثون', 'المتغيرات في بايثون', 'أنواع البيانات', 'الشروط في بايثون',
+            'الحلقات في بايثون', 'الدوال في بايثون', 'الكلاسات في بايثون', 'معالجة الأخطاء',
+            'الملفات في بايثون', 'المكتبات الشهيرة', 'بايثون للويب', 'بايثون للبيانات',
+            'بايثون للذكاء الاصطناعي', 'بايثون للأمن', 'بايثون للبوتات', 'بايثون للأتمتة',
+            'بايثون للشبكات', 'بايثون للقواعد', 'بايثون للتطبيقات', 'بايثون للمشاريع'
+        ]
+    },
+    telegram_bots: {
+        title: '🤖 برمجة بوتات تليجرام',
+        emoji: '🤖',
+        description: 'تعلم برمجة بوتات تليجرام بجميع المكتبات',
+        lessons: [
+            'مقدمة البوتات', 'TeleBot', 'Aiogram', 'Pyrogram',
+            'Telethon', 'Webhooks', 'Long Polling', 'أزرار البوتات',
+            'قواعد البيانات', 'API الخارجية', 'إرسال الملفات', 'إرسال الصور',
+            'إرسال الفيديو', 'إرسال الصوت', 'بوتات الدفع', 'بوتات الألعاب',
+            'بوتات التعليم', 'بوتات التواصل', 'بوتات التحليل', 'مشروع بوت متكامل'
+        ]
+    },
+    html_css: {
+        title: '🌐 HTML & CSS',
+        emoji: '🌐',
+        description: 'تعلم تصميم مواقع الويب',
+        lessons: [
+            'مقدمة HTML', 'هيكل الصفحة', 'النصوص', 'الروابط',
+            'الصور', 'القوائم', 'الجداول', 'النماذج',
+            'مقدمة CSS', 'الألوان', 'الخطوط', 'التخطيط',
+            'Flexbox', 'Grid', 'التجاوب', 'التحريك',
+            'CSS المتقدم', 'CSS Variables', 'SASS', 'مشروع تصميم'
+        ]
+    },
+    javascript: {
+        title: '⚙️ JavaScript',
+        emoji: '⚙️',
+        description: 'تعلم لغة JavaScript لتطوير الويب',
+        lessons: [
+            'مقدمة JavaScript', 'المتغيرات', 'أنواع البيانات', 'الشروط',
+            'الحلقات', 'الدوال', 'الأشياء', 'المصفوفات',
+            'DOM', 'الأحداث', 'AJAX', 'Fetch API',
+            'Promises', 'Async/Await', 'ES6', 'المكتبات',
+            'React', 'Vue.js', 'Node.js', 'مشروع JavaScript'
+        ]
+    },
+    databases: {
+        title: '💾 قواعد البيانات',
+        emoji: '💾',
+        description: 'تعلم قواعد البيانات SQL و NoSQL',
+        lessons: [
+            'مقدمة قواعد البيانات', 'SQLite', 'MySQL', 'PostgreSQL',
+            'MongoDB', 'Redis', 'Firebase', 'إنشاء الجداول',
+            'الاستعلامات', 'التحديث', 'الحذف', 'الربط',
+            'الفهرسة', 'النسخ الاحتياطي', 'الأمان', 'التحسين',
+            'العلاقات', 'المعاملات', 'التخزين', 'مشروع قاعدة بيانات'
+        ]
+    },
+    flask_fastapi: {
+        title: '🌍 Flask & FastAPI',
+        emoji: '🌍',
+        description: 'تعلم بناء APIs ومواقع ويب',
+        lessons: [
+            'مقدمة Flask', 'Flask للمبتدئين', 'Flask المتقدم', 'Flask APIs',
+            'مقدمة FastAPI', 'FastAPI للمبتدئين', 'FastAPI المتقدم', 'FastAPI APIs',
+            'OAuth', 'JWT', 'التوثيق', 'الأمان',
+            'التعامل مع الطلبات', 'الاستجابات', 'قواعد البيانات', 'الاختبار',
+            'النشر', 'الأداء', 'التوسع', 'مشروع API'
+        ]
+    },
+    cyber_security: {
+        title: '🛡️ الأمن السيبراني الدفاعي',
+        emoji: '🛡️',
+        description: 'تعلم حماية الأنظمة والتصدي للهجمات',
+        lessons: [
+            'مقدمة الأمن السيبراني', 'OWASP Top 10', 'SQL Injection (للشرح والدفاع)',
+            'XSS (للشرح والدفاع)', 'CSRF (للشرح والدفاع)', 'أمن كلمات المرور',
+            'التشفير', 'الهاش', 'التوقيع الرقمي', 'الشهادات',
+            'جدران الحماية', 'أنظمة الكشف', 'التصدي للهجمات', 'الاختبار الأمني',
+            'أمن الشبكات', 'أمن التطبيقات', 'أمن السحابة', 'أمن الأجهزة',
+            'التحليل الأمني', 'الاستجابة للحوادث'
+        ]
+    },
+    lab_ctf: {
+        title: '🧪 المختبرات العملية وCTF',
+        emoji: '🧪',
+        description: 'تطبيق عملي ومختبرات اختراق',
+        lessons: [
+            'مقدمة CTF', 'CTF للمبتدئين', 'تحديات الويب', 'تحديات الشبكات',
+            'تحديات التشفير', 'تحديات الثغرات', 'تحديات الاستغلال', 'تحليل الثغرات',
+            'اختبار الاختراق', 'أدوات الاختبار', 'Nmap', 'Metasploit',
+            'Burp Suite', 'Wireshark', 'Hydra', 'John the Ripper',
+            'مختبر الويب', 'مختبر الشبكات', 'مختبر الأنظمة', 'مختبر الأمن'
+        ]
+    },
+    projects_tests: {
+        title: '🎓 المشاريع والاختبارات',
+        emoji: '🎓',
+        description: 'مشاريع عملية واختبارات تقييم',
+        lessons: [
+            'مشروع بوت متجر', 'مشروع بوت إدارة', 'مشروع API', 'مشروع موقع',
+            'مشروع قاعدة بيانات', 'مشروع أمني', 'مشروع تحليل', 'مشروع أتمتة',
+            'اختبار المستوى', 'اختبار أساسيات', 'اختبار بايثون', 'اختبار بوتات',
+            'اختبار ويب', 'اختبار قواعد', 'اختبار أمن', 'اختبار شامل',
+            'شهادة إتمام', 'تقييم المشاريع', 'تحليل النتائج', 'خطة تطوير'
+        ]
+    }
+};
+
+// ===== دالة عرض القائمة الرئيسية =====
 function mainMenu() {
     return {
         text: `
-🔥 *هاكر أكاديمي* 🔥
-━━━━━━━━━━━━━━━━━
-👑 *تحت إشراف* ${adminUsername}
-📚 *أفخم بوت تعليم برمجة واختراقات*
+🔥 *منصة عبود التعليمية الشاملة* 🔥
 
-📖 *المحتوى التعليمي:*
-• 50+ درس حقيقي
-• كودات اختراق احترافية
-• تصميم مواقع متقدمة
-• برمجة بوتات تليجرام
+👑 *تحت إشراف:* @SSSTlF
+🆔 *ايدي حسابك:* \`${userId}\`
 
-💻 *المستويات:*
-🟢 مبتدئ → 🟡 متوسط → 🔴 محترف
+📚 *اختر القسم التعليمي المناسب لك:*
 
-━━━━━━━━━━━━━━━━━
-📌 *اختر مسارك التعليمي*
+📘 أساسيات البرمجة (20 درس)
+🐍 بايثون (20 درس)
+🤖 برمجة بوتات تليجرام (20 درس)
+🌐 HTML & CSS (20 درس)
+⚙️ JavaScript (20 درس)
+💾 قواعد البيانات (20 درس)
+🌍 Flask & FastAPI (20 درس)
+🛡️ الأمن السيبراني الدفاعي (20 درس)
+🧪 المختبرات العملية وCTF (20 درس)
+🎓 المشاريع والاختبارات (20 درس)
+
+📊 *إجمالي الدروس: 200 درس تعليمي*
+
+🎯 *تعلم وطور مهاراتك مع أفضل المدربين*
         `,
         buttons: Markup.inlineKeyboard([
-            [Markup.button.callback('🐍 بايثون - اختراق', 'python_hacking')],
-            [Markup.button.callback('🤖 برمجة البوتات', 'bot_programming')],
-            [Markup.button.callback('🌐 تصميم المواقع', 'web_design')],
-            [Markup.button.callback('🔐 أمن سيبراني', 'cyber_security')],
-            [Markup.button.callback('📱 اختراق الموبايل', 'mobile_hacking')],
-            [Markup.button.callback('🛠 أدوات الهاكر', 'hacker_tools')],
-            [Markup.button.callback('📖 دروس متقدمة', 'advanced_lessons')],
-            [Markup.button.callback('💻 مشاريع عملية', 'projects')],
-            [Markup.button.callback('👥 المجتمع', 'community')],
-            [Markup.button.callback('📞 تواصل مع المشرف', 'contact_admin')]
+            [Markup.button.callback('📘 أساسيات البرمجة', 'section_basics')],
+            [Markup.button.callback('🐍 بايثون', 'section_python')],
+            [Markup.button.callback('🤖 برمجة بوتات تليجرام', 'section_telegram_bots')],
+            [Markup.button.callback('🌐 HTML & CSS', 'section_html_css')],
+            [Markup.button.callback('⚙️ JavaScript', 'section_javascript')],
+            [Markup.button.callback('💾 قواعد البيانات', 'section_databases')],
+            [Markup.button.callback('🌍 Flask & FastAPI', 'section_flask_fastapi')],
+            [Markup.button.callback('🛡️ الأمن السيبراني الدفاعي', 'section_cyber_security')],
+            [Markup.button.callback('🧪 المختبرات العملية وCTF', 'section_lab_ctf')],
+            [Markup.button.callback('🎓 المشاريع والاختبارات', 'section_projects_tests')],
+            [Markup.button.callback('📢 القناة الرسمية', 'channel')],
+            [Markup.button.callback('🛠 الدعم الفني', 'support')]
         ], { columns: 2 })
     };
 }
 
-// ===== دروس بايثون - اختراق =====
-const pythonHackingLessons = [
-    '📚 *درس 1: مقدمة في اختراق بايثون*\n\n🐍 تعلم أساسيات اختراق بايثون\n📌 فهم الثغرات الأمنية\n🔧 أدوات الاختراق الأساسية\n\n`code: print("Hacking with Python")`',
-    '📚 *درس 2: ماسح المنافذ*\n\n🛠 بناء ماسح منافذ باستخدام بايثون\n📡 اكتشاف الخدمات المشغلة\n🔍 تحليل النتائج\n\n```python\nimport socket\ndef scan_port(host, port):\n    sock = socket.socket()\n    result = sock.connect_ex((host, port))\n    sock.close()\n    return result == 0\n```',
-    '📚 *درس 3: هجوم القاموس*\n\n🔐 اختبار كلمات المرور\n📚 استخدام قواميس اختراق\n⚡️ تحسين الأداء\n\n```python\nimport hashlib\ndef crack_password(hash_value, wordlist):\n    for word in wordlist:\n        if hashlib.md5(word.encode()).hexdigest() == hash_value:\n            return word\n    return None\n```',
-    '📚 *درس 4: اعتراض الحزم*\n\n📡 استخدام Scapy لاعتراض الحزم\n🔍 تحليل حركة المرور\n🛡 اكتشاف هجمات الشبكة',
-    '📚 *درس 5: استغلال الثغرات*\n\n💥 استغلال ثغرات الويب\n🔧 استخدام requests للهجوم\n🛠 تنفيذ أوامر عن بعد',
-    '📚 *درس 6: تشفير وفك تشفير*\n\n🔐 تشفير البيانات\n🗝 فك التشفير\n📜 تقنيات التشفير المتقدمة',
-    '📚 *درس 7: هجوم MITM*\n\n👤 هجوم الرجل في المنتصف\n📡 اعتراض الاتصالات\n🛡 الحماية من الهجوم',
-    '📚 *درس 8: اختراق واي فاي*\n\n📶 اختراق شبكات الواي فاي\n🔑 استخراج كلمات المرور\n🛠 استخدام Aircrack-ng',
-    '📚 *درس 9: بناء روت كيت*\n\n🕵️‍♂️ بناء روت كيت خفي\n🔧 التحكم في النظام\n🛡 تجنب الكشف',
-    '📚 *درس 10: اختبار الاختراق المتقدم*\n\n🎯 اختبار اختراق شامل\n📊 تقارير الثغرات\n🛠 أدوات متقدمة',
-    '📚 *درس 11: هندسة عكسية*\n\n🔍 تحليل البرمجيات\n🛠 فك التجميع\n🔧 فهم الشيفرة المصدرية',
-    '📚 *درس 12: استغلال الثغرات الصفرية*\n\n💥 ثغرات اليوم صفر\n🔍 اكتشاف الثغرات\n🛡 تطوير إكسبلويت',
-    '📚 *درس 13: أمن الشبكات*\n\n🛡 حماية الشبكات\n🔍 كشف الاختراقات\n📊 تحليل السجلات',
-    '📚 *درس 14: اختراق السيرفرات*\n\n🖥 اختراق خوادم الويب\n🔍 استغلال الثغرات\n🛠 أدوات الاختراق',
-    '📚 *درس 15: البايثون للأمن السيبراني*\n\n🔐 بايثون للأمن\n🛠 أدوات حماية\n📚 دروس متقدمة',
-    '📚 *درس 16: بناء فايروس بايثون*\n\n🦠 بناء فيروسات تجريبية\n🔧 تقنيات التخفي\n🛡 تجنب الكشف',
-    '📚 *درس 17: اختراق الأنظمة المدمجة*\n\n🤖 اختراق الأجهزة المدمجة\n🔍 استغلال الثغرات\n🛠 أدوات متخصصة',
-    '📚 *درس 18: أمن قواعد البيانات*\n\n🗄 حماية قواعد البيانات\n🔍 كشف الثغرات\n🛡 هجمات SQL Injection',
-    '📚 *درس 19: اختراق التطبيقات*\n\n📱 اختراق تطبيقات الموبايل\n🔍 استغلال الثغرات\n🛠 أدوات اختبار',
-    '📚 *درس 20: أمن السحابة*\n\n☁️ حماية السحابة\n🔍 كشف الثغرات\n🛡 تأمين البيئات السحابية'
-];
+// ===== دالة عرض الدروس =====
+function showLesson(sectionKey, index) {
+    const section = SECTIONS[sectionKey];
+    if (!section || index >= section.lessons.length) {
+        return {
+            text: `✅ *انتهت الدروس التعليمية في قسم ${section.title}*\n\n🎉 لقد أكملت جميع الدروس!`,
+            buttons: Markup.inlineKeyboard([
+                [Markup.button.callback('🔙 العودة للقائمة الرئيسية', 'menu')]
+            ])
+        };
+    }
+    
+    const lessonName = section.lessons[index];
+    const total = section.lessons.length;
+    
+    return {
+        text: `
+📚 *${section.title}*
 
-// ===== دروس برمجة البوتات =====
-const botProgrammingLessons = [
-    '📚 *درس 1: مقدمة في برمجة البوتات*\n\n🤖 أساسيات برمجة البوتات\n📚 استخدام مكتبة Telegraf\n🔧 إنشاء أول بوت',
-    '📚 *درس 2: بناء بوت تليجرام متقدم*\n\n🛠 بوت متكامل\n📊 قواعد البيانات\n🔐 أمان البوتات',
-    '📚 *درس 3: أزرار تفاعلية فخمة*\n\n🎛 أزرار Inline\n📋 قوائم منسقة\n🎨 تصميم واجهات',
-    '📚 *درس 4: ربط البوت بقواعد البيانات*\n\n🗄 استخدام MongoDB\n📊 تخزين البيانات\n🔍 استرجاع المعلومات',
-    '📚 *درس 5: بوتات الذكاء الاصطناعي*\n\n🧠 استخدام APIs ذكاء اصطناعي\n🤖 بوتات متقدمة\n📚 تطبيقات عملية'
-];
+📖 *الدرس ${index + 1} من ${total}*
 
-// ===== دروس تصميم المواقع =====
-const webDesignLessons = [
-    '📚 *درس 1: مقدمة في تصميم المواقع*\n\n🌐 أساسيات HTML & CSS\n🎨 تصميم صفحات احترافية\n📱 تصميم متجاوب',
-    '📚 *درس 2: مواقع اختراق وهمية*\n\n🕵️ تصميم مواقع تجريبية\n🔐 واجهات اختراق\n🛠 أدوات التصميم',
-    '📚 *درس 3: واجهات فخمة للمخترقين*\n\n🎨 تصميم واجهات سوداء\n💻 تأثيرات متقدمة\n⚡️ أداء عالي',
-    '📚 *درس 4: مواقع إدارة الاختراقات*\n\n📊 لوحات تحكم\n📈 إحصائيات\n🛠 أدوات إدارة',
-    '📚 *درس 5: تصميم مواقع بوتات*\n\n🤖 واجهات بوتات\n📱 تطبيقات ويب\n🔧 تكامل مع APIs'
-];
+📘 *${lessonName}*
 
-// ===== دروس الأمن السيبراني =====
-const cyberSecurityLessons = [
-    '📚 *درس 1: مقدمة في الأمن السيبراني*\n\n🛡 أساسيات الأمن\n🔍 أنواع الهجمات\n📚 استراتيجيات الدفاع',
-    '📚 *درس 2: تحليل الثغرات*\n\n🔍 كشف الثغرات\n📊 تقييم المخاطر\n🛠 أدوات التحليل',
-    '📚 *درس 3: أمن التطبيقات*\n\n🛡 حماية التطبيقات\n🔐 تشفير البيانات\n📚 أفضل الممارسات'
-];
+📝 *شرح مفصل للدرس مع أمثلة عملية وتطبيقات واقعية*
+👨‍🏫 *تحت إشراف عبود @SSSTlF*
 
-// ===== دروس اختراق الموبايل =====
-const mobileHackingLessons = [
-    '📚 *درس 1: مقدمة في اختراق الموبايل*\n\n📱 أساسيات اختراق الأندرويد\n🔍 استغلال الثغرات\n🛠 أدوات الاختراق',
-    '📚 *درس 2: اختراق تطبيقات الموبايل*\n\n🔐 تحليل التطبيقات\n💥 استغلال الثغرات\n📚 تقنيات متقدمة'
-];
-
-// ===== أدوات الهاكر =====
-const hackerToolsLessons = [
-    '📚 *أداة 1: Nmap*\n\n🔍 ماسح الشبكات\n📡 اكتشاف الأجهزة\n🛠 استخدام متقدم',
-    '📚 *أداة 2: Metasploit*\n\n💥 إطار الاختراق\n🛠 تطوير إكسبلويت\n🔧 استخدام متقدم',
-    '📚 *أداة 3: Wireshark*\n\n📡 تحليل الحزم\n🔍 كشف الهجمات\n📊 تقارير متقدمة'
-];
-
-// ===== دروس متقدمة =====
-const advancedLessons = [
-    '📚 *درس متقدم 1: اختراق الأنظمة الخبيرة*\n\n💻 استغلال الثغرات المعقدة\n🛠 أدوات متخصصة\n🔍 تحليل متقدم',
-    '📚 *درس متقدم 2: أمن الذكاء الاصطناعي*\n\n🧠 حماية الأنظمة الذكية\n🔐 تشفير متقدم\n📚 دراسات حالة'
-];
-
-// ===== مشاريع عملية =====
-const projectsLessons = [
-    '📚 *مشروع 1: بناء ماسح ثغرات*\n\n🛠 مشروع متكامل\n🔍 اكتشاف الثغرات\n📊 تقارير احترافية',
-    '📚 *مشروع 2: بناء بوت اختراق*\n\n🤖 بوت متقدم\n🔧 أدوات الاختراق\n📚 تطبيق عملي'
-];
-
-// ===== دوال عرض الدروس =====
-function sendLesson(ctx, lessons, title) {
-    let text = `📚 *${title}*\n━━━━━━━━━━━━━━━━━\n`;
-    lessons.forEach((lesson, i) => {
-        text += `\n${i+1}. ${lesson.split('\n')[0].replace('📚 ', '')}`;
-    });
-    text += `\n━━━━━━━━━━━━━━━━━\n📌 اختر درساً لقراءة الكود والشرح`;
-
-    const buttons = lessons.map((_, i) => {
-        return [Markup.button.callback(`${i+1}`, `lesson_${title}_${i}`)];
-    });
-    buttons.push([Markup.button.callback('🔙 رجوع للقائمة', 'back_to_main')]);
-
-    return ctx.reply(text, {
-        parse_mode: 'Markdown',
-        ...Markup.inlineKeyboard(buttons)
-    });
+💡 *للوصول للدرس التالي، استخدم الأزرار أدناه*
+        `,
+        buttons: Markup.inlineKeyboard([
+            [Markup.button.callback('⬅️ السابق', `prev_${sectionKey}_${index}`)],
+            [Markup.button.callback('التالي ➡️', `next_${sectionKey}_${index}`)],
+            [Markup.button.callback('🔙 العودة للقسم', `back_${sectionKey}`)],
+            [Markup.button.callback('🏠 القائمة الرئيسية', 'menu')]
+        ], { columns: 2 })
+    };
 }
 
-// ===== معالج الأزرار =====
-bot.action('python_hacking', async (ctx) => {
-    await ctx.answerCbQuery();
-    await sendLesson(ctx, pythonHackingLessons, 'دروس اختراق بايثون');
-});
-
-bot.action('bot_programming', async (ctx) => {
-    await ctx.answerCbQuery();
-    await sendLesson(ctx, botProgrammingLessons, 'دروس برمجة البوتات');
-});
-
-bot.action('web_design', async (ctx) => {
-    await ctx.answerCbQuery();
-    await sendLesson(ctx, webDesignLessons, 'دروس تصميم المواقع');
-});
-
-bot.action('cyber_security', async (ctx) => {
-    await ctx.answerCbQuery();
-    await sendLesson(ctx, cyberSecurityLessons, 'دروس الأمن السيبراني');
-});
-
-bot.action('mobile_hacking', async (ctx) => {
-    await ctx.answerCbQuery();
-    await sendLesson(ctx, mobileHackingLessons, 'دروس اختراق الموبايل');
-});
-
-bot.action('hacker_tools', async (ctx) => {
-    await ctx.answerCbQuery();
-    await sendLesson(ctx, hackerToolsLessons, 'أدوات الهاكر');
-});
-
-bot.action('advanced_lessons', async (ctx) => {
-    await ctx.answerCbQuery();
-    await sendLesson(ctx, advancedLessons, 'دروس متقدمة');
-});
-
-bot.action('projects', async (ctx) => {
-    await ctx.answerCbQuery();
-    await sendLesson(ctx, projectsLessons, 'مشاريع عملية');
-});
-
-bot.action('community', async (ctx) => {
-    await ctx.answerCbQuery();
-    await ctx.reply(`
-👥 *مجتمع الهاكرز*
-━━━━━━━━━━━━━━━━━
-🌐 انضم لقنواتنا:
-📢 @YourChannel
-💬 @YourGroup
-
-👑 *المشرف*: ${adminUsername}
-
-📚 *محتوى حصري*
-• دروس يومية
-• كودات اختراق
-• مشاريع عملية
-• تحديات أسبوعية
-    `, { parse_mode: 'Markdown' });
-});
-
-bot.action('contact_admin', async (ctx) => {
-    await ctx.answerCbQuery();
-    await ctx.reply(`
-📞 *تواصل مع المشرف*
-━━━━━━━━━━━━━━━━━
-👑 *المشرف*: ${adminUsername}
-
-📌 *للتواصل*:
-• مباشرة: ${adminUsername}
-• البوت: @aaaasvvvbot
-
-🛠 *الخدمات*:
-• استشارات أمنية
-• دورات خاصة
-• مشاريع مخصصة
-    `, { parse_mode: 'Markdown' });
-});
-
-bot.action(/lesson_.+/, async (ctx) => {
-    const callbackData = ctx.callbackQuery.data;
-    const parts = callbackData.split('_');
-    const title = parts[1] + '_' + parts[2];
-    const index = parseInt(parts[3]);
-
-    let lessons;
-    if (title.includes('دروس اختراق بايثون')) lessons = pythonHackingLessons;
-    else if (title.includes('دروس برمجة البوتات')) lessons = botProgrammingLessons;
-    else if (title.includes('دروس تصميم المواقع')) lessons = webDesignLessons;
-    else if (title.includes('دروس الأمن السيبراني')) lessons = cyberSecurityLessons;
-    else if (title.includes('دروس اختراق الموبايل')) lessons = mobileHackingLessons;
-    else if (title.includes('أدوات الهاكر')) lessons = hackerToolsLessons;
-    else if (title.includes('دروس متقدمة')) lessons = advancedLessons;
-    else if (title.includes('مشاريع عملية')) lessons = projectsLessons;
-    else return ctx.answerCbQuery('❌ درس غير موجود');
-
-    if (index < lessons.length) {
-        await ctx.answerCbQuery(`📚 عرض الدرس ${index+1}`);
-        await ctx.reply(lessons[index], {
+// ===== إنشاء الأزرار الديناميكية للأقسام =====
+Object.keys(SECTIONS).forEach(sectionKey => {
+    // زر فتح القسم
+    bot.action(`section_${sectionKey}`, async (ctx) => {
+        const lesson = showLesson(sectionKey, 0);
+        await ctx.answerCbQuery(`📚 تم فتح ${SECTIONS[sectionKey].title}`);
+        await ctx.editMessageText(lesson.text, {
             parse_mode: 'Markdown',
-            ...Markup.inlineKeyboard([
-                [Markup.button.callback('📖 الدرس التالي', `lesson_${title}_${index+1}`)],
-                [Markup.button.callback('📚 العودة للدروس', `back_${title}`)],
-                [Markup.button.callback('🔙 القائمة الرئيسية', 'back_to_main')]
-            ])
+            ...lesson.buttons,
+            disable_web_page_preview: true
         });
-    } else {
-        await ctx.answerCbQuery('🏁 وصلت لآخر درس');
-        await ctx.reply('🏁 *وصلت لآخر درس في هذه المجموعة*\n📚 اختر درساً آخر أو عد للقائمة', {
+    });
+
+    // زر العودة للقسم
+    bot.action(`back_${sectionKey}`, async (ctx) => {
+        const lesson = showLesson(sectionKey, 0);
+        await ctx.answerCbQuery(`🔙 العودة إلى ${SECTIONS[sectionKey].title}`);
+        await ctx.editMessageText(lesson.text, {
             parse_mode: 'Markdown',
-            ...Markup.inlineKeyboard([
-                [Markup.button.callback('📚 العودة للدروس', `back_${title}`)],
-                [Markup.button.callback('🔙 القائمة الرئيسية', 'back_to_main')]
-            ])
+            ...lesson.buttons,
+            disable_web_page_preview: true
         });
-    }
+    });
+
+    // زر التالي
+    bot.action(new RegExp(`next_${sectionKey}_(\\d+)`), async (ctx) => {
+        const index = parseInt(ctx.match[1]) + 1;
+        const lesson = showLesson(sectionKey, index);
+        await ctx.answerCbQuery(`📖 الدرس ${index + 1}`);
+        await ctx.editMessageText(lesson.text, {
+            parse_mode: 'Markdown',
+            ...lesson.buttons,
+            disable_web_page_preview: true
+        });
+    });
+
+    // زر السابق
+    bot.action(new RegExp(`prev_${sectionKey}_(\\d+)`), async (ctx) => {
+        const index = parseInt(ctx.match[1]) - 1;
+        if (index < 0) {
+            await ctx.answerCbQuery('⚠️ أنت في أول درس');
+            return;
+        }
+        const lesson = showLesson(sectionKey, index);
+        await ctx.answerCbQuery(`📖 الدرس ${index + 1}`);
+        await ctx.editMessageText(lesson.text, {
+            parse_mode: 'Markdown',
+            ...lesson.buttons,
+            disable_web_page_preview: true
+        });
+    });
 });
 
-bot.action(/back_.+/, async (ctx) => {
-    const callbackData = ctx.callbackQuery.data;
-    const title = callbackData.replace('back_', '');
-    
-    let lessons;
-    if (title.includes('دروس اختراق بايثون')) lessons = pythonHackingLessons;
-    else if (title.includes('دروس برمجة البوتات')) lessons = botProgrammingLessons;
-    else if (title.includes('دروس تصميم المواقع')) lessons = webDesignLessons;
-    else if (title.includes('دروس الأمن السيبراني')) lessons = cyberSecurityLessons;
-    else if (title.includes('دروس اختراق الموبايل')) lessons = mobileHackingLessons;
-    else if (title.includes('أدوات الهاكر')) lessons = hackerToolsLessons;
-    else if (title.includes('دروس متقدمة')) lessons = advancedLessons;
-    else if (title.includes('مشاريع عملية')) lessons = projectsLessons;
-    else return ctx.answerCbQuery('❌');
-
-    await ctx.answerCbQuery();
-    await sendLesson(ctx, lessons, title);
-});
-
-bot.action('back_to_main', async (ctx) => {
-    await ctx.answerCbQuery();
+// ===== زر العودة للقائمة الرئيسية =====
+bot.action('menu', async (ctx) => {
     const menu = mainMenu();
+    await ctx.answerCbQuery('🏠 العودة للقائمة الرئيسية');
     await ctx.editMessageText(menu.text, {
         parse_mode: 'Markdown',
         ...menu.buttons,
@@ -304,20 +298,8 @@ bot.action('back_to_main', async (ctx) => {
 // ===== أوامر البوت =====
 bot.start(async (ctx) => {
     const menu = mainMenu();
-    await ctx.reply(`
-🔥 *مرحباً بك في هاكر أكاديمي* 🔥
-━━━━━━━━━━━━━━━━━
-👑 *تحت إشراف* ${adminUsername}
-📚 *أفخم بوت تعليمي في الشرق الأوسط*
-
-📌 *المحتوى:*
-• 50+ درس حقيقي
-• كودات اختراق احترافية
-• تصميم مواقع متقدمة
-• برمجة بوتات تليجرام
-
-💡 *ابدأ رحلتك في عالم الاختراق الأخلاقي*
-    `, {
+    await ctx.reply('🔥 *مرحباً بك في منصة عبود التعليمية الشاملة!*\n📚 *استعد لتعلم 200 درس في 10 أقسام مختلفة*', { parse_mode: 'Markdown' });
+    await ctx.reply(menu.text, { 
         parse_mode: 'Markdown',
         ...menu.buttons,
         disable_web_page_preview: true
@@ -326,10 +308,26 @@ bot.start(async (ctx) => {
 
 bot.command('menu', async (ctx) => {
     const menu = mainMenu();
-    await ctx.reply(menu.text, {
+    await ctx.reply(menu.text, { 
         parse_mode: 'Markdown',
         ...menu.buttons,
         disable_web_page_preview: true
+    });
+});
+
+// ===== زر القناة =====
+bot.action('channel', async (ctx) => {
+    await ctx.answerCbQuery('📢 القناة الرسمية');
+    await ctx.reply('📢 *القناة الرسمية:* @SSSTlF\n\n📚 *تابع كل جديد في عالم البرمجة والأمن السيبراني*', {
+        parse_mode: 'Markdown'
+    });
+});
+
+// ===== زر الدعم =====
+bot.action('support', async (ctx) => {
+    await ctx.answerCbQuery('🛠 فريق الدعم');
+    await ctx.reply('🛠 *فريق الدعم الفني:* @SSSTlF\n\n📩 *للتواصل والاستفسارات، يرجى مراسلة الدعم مباشرة*', {
+        parse_mode: 'Markdown'
     });
 });
 
@@ -341,6 +339,9 @@ async function startBot() {
         await bot.launch();
         console.log('✅ Bot is running successfully!');
         console.log(`🤖 Bot username: @${bot.botInfo?.username || 'unknown'}`);
+        console.log('📡 Polling for updates...');
+        console.log('👑 تحت إشراف عبود @SSSTlF');
+        console.log('📚 200 درس في 10 أقسام');
     } catch (err) {
         console.error('❌ Failed to start bot:', err.message);
         process.exit(1);
@@ -349,5 +350,5 @@ async function startBot() {
 
 startBot();
 
-process.once('SIGINT', () => bot.stop('SIGINT'));
-process.once('SIGTERM', () => bot.stop('SIGTERM'));
+process.once('SIGINT', () => { bot.stop('SIGINT'); console.log('🛑 Bot stopped'); });
+process.once('SIGTERM', () => { bot.stop('SIGTERM'); console.log('🛑 Bot stopped'); });
