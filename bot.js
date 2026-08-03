@@ -1,4 +1,5 @@
 const { Telegraf, Markup } = require('telegraf');
+const express = require('express');
 
 // ===== التوكن =====
 const BOT_TOKEN = "8909739497:AAHBUGLmeligI-TX3kZKlQ_8nTZK61TKVtI";
@@ -15,6 +16,27 @@ let fakeAccounts = [
 let balance = 4.36;
 const userId = "8505541555";
 const refLink = "https://t.me/aaaasvvvbot?start=ref123456";
+
+// ===== خادم الويب (لـ Render) =====
+const app = express();
+const PORT = process.env.PORT || 10000;
+
+// ===== مسار للـ Health Check =====
+app.get('/', (req, res) => {
+    res.send(`
+        <h1>✅ البوت شغال</h1>
+        <p>🤖 @aaaasvvvbot</p>
+        <p>📡 Polling mode</p>
+        <p>👤 ${userId}</p>
+        <p>💰 $${balance.toFixed(2)}</p>
+    `);
+});
+
+// ===== تشغيل الخادم =====
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`✅ Web server running on port ${PORT}`);
+    console.log(`🌐 https://bbbb-3e1x.onrender.com`);
+});
 
 // ===== دالة عرض القائمة الرئيسية =====
 function mainMenu() {
