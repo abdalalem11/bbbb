@@ -8,17 +8,21 @@ const userId = "8505541555";
 // ========== خادم الويب ==========
 const app = express();
 const PORT = process.env.PORT || 10000;
+
 app.get('/', (req, res) => {
     res.send(`
         <h1 style="color:red;text-align:center;">🔥 منصة عبود التعليمية الشاملة</h1>
         <p style="text-align:center;">🤖 @aaaasvvvbot</p>
         <p style="text-align:center;color:red;">👑 تحت إشراف عبود @SSSTlF</p>
-        <p style="text-align:center;">📚 100+ كود حقيقي في 10 أقسام</p>
+        <p style="text-align:center;">📚 100+ كود حقيقي</p>
     `);
 });
-app.listen(PORT, '0.0.0.0', () => console.log(`✅ Web server running on port ${PORT}`));
 
-// ========== الألوان الفخمة ==========
+const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`✅ Web server running on port ${PORT}`);
+});
+
+// ========== الألوان ==========
 const COLORS = {
     basics: '#FF6B6B',
     python: '#4ECDC4',
@@ -32,7 +36,7 @@ const COLORS = {
     projects_tests: '#2ECC71'
 };
 
-// ========== الأقسام مع أكواد حقيقية ==========
+// ========== الأقسام ==========
 const SECTIONS = {
     basics: {
         title: '📘 أساسيات البرمجة',
@@ -201,7 +205,8 @@ const SECTIONS = {
             { name: 'اختبار بايثون', code: 'Q: كيف تنشئ دالة في بايثون؟\nA: باستخدام def' },
             { name: 'اختبار بوتات', code: 'Q: ما هي مكتبة Telegraf؟\nA: لبناء بوتات تليجرام في Node.js' },
             { name: 'شهادة', code: 'print("مبروك! لقد أكملت جميع الدروس")' },
-            { name: 'تقييم', code: 'def evaluate_project(code):\n    return "ممتاز"' }
+            { name: 'تقييم', code: 'def evaluate_project(code):\n    return "ممتاز"'
+        }
         ]
     }
 };
@@ -297,7 +302,7 @@ function showCodeWithCopy(sectionKey, codeIndex) {
     };
 }
 
-// ========== الأزرار الديناميكية ==========
+// ========== الأزرار ==========
 Object.keys(SECTIONS).forEach(sectionKey => {
     const section = SECTIONS[sectionKey];
     
@@ -321,7 +326,6 @@ Object.keys(SECTIONS).forEach(sectionKey => {
         });
     });
 
-    // عرض الكود
     bot.action(new RegExp(`show_code_${sectionKey}_(\\d+)`), async (ctx) => {
         const index = parseInt(ctx.match[1]);
         const data = showCodeWithCopy(sectionKey, index);
@@ -333,7 +337,6 @@ Object.keys(SECTIONS).forEach(sectionKey => {
         });
     });
 
-    // التالي
     bot.action(new RegExp(`next_code_${sectionKey}_(\\d+)`), async (ctx) => {
         const index = parseInt(ctx.match[1]) + 1;
         if (index >= section.codes.length) {
@@ -349,7 +352,6 @@ Object.keys(SECTIONS).forEach(sectionKey => {
         });
     });
 
-    // السابق
     bot.action(new RegExp(`prev_code_${sectionKey}_(\\d+)`), async (ctx) => {
         const index = parseInt(ctx.match[1]) - 1;
         if (index < 0) {
@@ -365,7 +367,6 @@ Object.keys(SECTIONS).forEach(sectionKey => {
         });
     });
 
-    // زر النسخ
     bot.action(new RegExp(`copy_${sectionKey}_(\\d+)`), async (ctx) => {
         const index = parseInt(ctx.match[1]);
         const codeItem = section.codes[index];
@@ -412,20 +413,37 @@ bot.action('support', async (ctx) => {
     await ctx.replyWithHTML('🛠 <b>فريق الدعم:</b> @SSSTlF\n\n📩 للتواصل');
 });
 
-// ========== تشغيل البوت ==========
-async function startBot() {
-    try {
-        await bot.telegram.setWebhook();
-        await bot.launch();
-        console.log('✅ Bot is running with 100+ real codes!');
-        console.log('👑 تحت إشراف عبود @SSSTlF');
-        console.log('🎨 واجهة بألوان فخمة وكتابة حمراء');
-    } catch (err) {
-        console.error('❌ Failed to start bot:', err.message);
-        process.exit(1);
-    }
-}
-startBot();
+// ========== تشغيل البوت (طريقة آمنة) ==========
+console.log('🚀 جاري تشغيل البوت...');
 
-process.once('SIGINT', () => { bot.stop('SIGINT'); });
-process.once('SIGTERM', () => { bot.stop('SIGTERM'); });
+// تشغيل البوت مع Polling (بدون Webhook)
+bot.launch({
+    dropPendingUpdates: true
+}).then(() => {
+    console.log('✅ Bot is running successfully!');
+    console.log('🤖 Bot username: @aaaasvvvbot');
+    console.log('👑 تحت إشراف عبود @SSSTlF');
+    console.log('📚 100+ كود حقيقي');
+    console.log('🎨 واجهة بألوان فخمة وكتابة حمراء');
+}).catch((err) => {
+    console.error('❌ Failed to start bot:', err.message);
+});
+
+// ========== إيقاف آمن ==========
+process.once('SIGINT', () => {
+    console.log('🛑 Stopping bot...');
+    bot.stop('SIGINT');
+    server.close(() => {
+        console.log('✅ Server closed');
+        process.exit(0);
+    });
+});
+
+process.once('SIGTERM', () => {
+    console.log('🛑 Stopping bot...');
+    bot.stop('SIGTERM');
+    server.close(() => {
+        console.log('✅ Server closed');
+        process.exit(0);
+    });
+});
