@@ -205,18 +205,17 @@ const SECTIONS = {
             { name: 'اختبار بايثون', code: 'Q: كيف تنشئ دالة في بايثون؟\nA: باستخدام def' },
             { name: 'اختبار بوتات', code: 'Q: ما هي مكتبة Telegraf؟\nA: لبناء بوتات تليجرام في Node.js' },
             { name: 'شهادة', code: 'print("مبروك! لقد أكملت جميع الدروس")' },
-            { name: 'تقييم', code: 'def evaluate_project(code):\n    return "ممتاز"'
-        }
+            { name: 'تقييم', code: 'def evaluate_project(code):\n    return "ممتاز"' }
         ]
     }
 };
 
-// ========== دوال العرض ==========
+// ========== دوال العرض (بدون <span>) ==========
 function mainMenu() {
     let sectionList = '';
     Object.keys(SECTIONS).forEach(key => {
         const section = SECTIONS[key];
-        sectionList += `${section.emoji} <b>${section.title}</b> — <span style="color:${section.color};">10 أكواد</span>\n`;
+        sectionList += `${section.emoji} <b>${section.title}</b> — 10 أكواد\n`;
     });
 
     return {
@@ -232,7 +231,7 @@ ${sectionList}
 
 <b>📊 إجمالي الأكواد: 100+ كود حقيقي</b>
 
-🎯 <span style="color:red;">تعلم وطور مهاراتك مع أفضل المدربين</span>
+<b>🎯 تعلم وطور مهاراتك مع أفضل المدربين</b>
         `,
         buttons: Markup.inlineKeyboard([
             [Markup.button.callback('📘 أساسيات البرمجة', 'section_basics')],
@@ -262,11 +261,11 @@ function showCodes(sectionKey) {
         text: `
 <b>${section.emoji} ${section.title}</b>
 
-<span style="color:${section.color};"><b>📚 10 أكواد حقيقية قابلة للنسخ:</b></span>
+<b>📚 10 أكواد حقيقية قابلة للنسخ:</b>
 
 ${codeList}
 
-<span style="color:red;">👇 اضغط على زر الكود لنسخه</span>
+<b>👇 اضغط على زر الكود لنسخه</b>
         `,
         buttons: Markup.inlineKeyboard([
             [Markup.button.callback('📋 عرض الكود الأول', `show_code_${sectionKey}_0`)],
@@ -286,11 +285,11 @@ function showCodeWithCopy(sectionKey, codeIndex) {
 <b>${section.emoji} ${section.title}</b>
 
 <b>📌 ${codeItem.name}</b>
-<span style="color:red;">👇 الكود:</span>
+<b>👇 الكود:</b>
 
 <code>${codeItem.code}</code>
 
-<span style="color:${section.color};">🔹 ${codeIndex+1} من ${total}</span>
+<b>🔹 ${codeIndex+1} من ${total}</b>
         `,
         buttons: Markup.inlineKeyboard([
             [Markup.button.callback('📋 نسخ الكود', `copy_${sectionKey}_${codeIndex}`)],
@@ -376,7 +375,7 @@ Object.keys(SECTIONS).forEach(sectionKey => {
 
 <code>${codeItem.code}</code>
 
-<span style="color:green;">✅ يمكنك لصقه الآن في مشروعك</span>
+<b>✅ يمكنك لصقه الآن في مشروعك</b>
         `);
     });
 });
@@ -384,7 +383,7 @@ Object.keys(SECTIONS).forEach(sectionKey => {
 // ========== الأوامر ==========
 bot.start(async (ctx) => {
     const menu = mainMenu();
-    await ctx.replyWithHTML(`<b>🔥 مرحباً بك في منصة عبود التعليمية الشاملة!</b>\n📚 استعد لتعلم <span style="color:red;">100+ كود حقيقي</span>`);
+    await ctx.replyWithHTML(`<b>🔥 مرحباً بك في منصة عبود التعليمية الشاملة!</b>\n📚 استعد لتعلم <b>100+ كود حقيقي</b>`);
     await ctx.replyWithHTML(menu.text, { ...menu.buttons, disable_web_page_preview: true });
 });
 
@@ -413,10 +412,9 @@ bot.action('support', async (ctx) => {
     await ctx.replyWithHTML('🛠 <b>فريق الدعم:</b> @SSSTlF\n\n📩 للتواصل');
 });
 
-// ========== تشغيل البوت (طريقة آمنة) ==========
+// ========== تشغيل البوت ==========
 console.log('🚀 جاري تشغيل البوت...');
 
-// تشغيل البوت مع Polling (بدون Webhook)
 bot.launch({
     dropPendingUpdates: true
 }).then(() => {
@@ -424,26 +422,18 @@ bot.launch({
     console.log('🤖 Bot username: @aaaasvvvbot');
     console.log('👑 تحت إشراف عبود @SSSTlF');
     console.log('📚 100+ كود حقيقي');
-    console.log('🎨 واجهة بألوان فخمة وكتابة حمراء');
 }).catch((err) => {
     console.error('❌ Failed to start bot:', err.message);
 });
 
-// ========== إيقاف آمن ==========
 process.once('SIGINT', () => {
     console.log('🛑 Stopping bot...');
     bot.stop('SIGINT');
-    server.close(() => {
-        console.log('✅ Server closed');
-        process.exit(0);
-    });
+    server.close(() => process.exit(0));
 });
 
 process.once('SIGTERM', () => {
     console.log('🛑 Stopping bot...');
     bot.stop('SIGTERM');
-    server.close(() => {
-        console.log('✅ Server closed');
-        process.exit(0);
-    });
+    server.close(() => process.exit(0));
 });
