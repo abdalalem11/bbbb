@@ -1,7 +1,3 @@
-// ===== إعدادات البوت =====
-const BOT_TOKEN = "8584318691:AAGHfeUE57_3z04oI91gHiy6MqNSn-RLj5k";
-const CHAT_ID = "1170411845";
-
 // ===== البيانات الوهمية =====
 let fakeAccounts = [
     "+1 555 123 4567",
@@ -13,23 +9,32 @@ let fakeAccounts = [
 let balance = 4.36;
 let userId = "8505541555";
 
-// ===== دالة إرسال رسالة لتليجرام =====
-function sendTelegramMessage(message) {
-    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-    fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            chat_id: CHAT_ID,
-            text: message,
-            parse_mode: 'HTML'
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
+// ===== دالة إرسال رسالة عبر الخادم =====
+async function sendTelegramMessage(message) {
+    try {
+        const response = await fetch('/api/send-message', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+        const data = await response.json();
         if (!data.ok) console.error('خطأ في الإرسال:', data);
-    })
-    .catch(err => console.error('فشل الاتصال:', err));
+        return data;
+    } catch (err) {
+        console.error('فشل الاتصال:', err);
+        return { ok: false, error: err.message };
+    }
+}
+
+// ===== دالة اختبار البوت =====
+async function testBot() {
+    const msg = '🧪 رسالة اختبار من لوحة التحكم الوهمية';
+    const result = await sendTelegramMessage(msg);
+    if (result && result.ok) {
+        alert('✅ تم إرسال رسالة الاختبار بنجاح إلى تليجرام');
+    } else {
+        alert('❌ فشل إرسال رسالة الاختبار. تأكد من التوكن والإيدي.');
+    }
 }
 
 // ===== عرض الحسابات =====
