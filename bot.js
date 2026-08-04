@@ -3,7 +3,6 @@ const express = require('express');
 
 const BOT_TOKEN = "8909739497:AAHBUGLmeligI-TX3kZKlQ_8nTZK61TKVtI";
 const bot = new Telegraf(BOT_TOKEN);
-const userId = "8505541555";
 
 // ========== خادم الويب ==========
 const app = express();
@@ -23,27 +22,13 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 
 // ========== أسعار NFT ==========
 let nftPrices = {
-    'CryptoPunks': { floor: '49.5 ETH', change: '+3.2%', volume: '245 ETH' },
-    'Bored Ape': { floor: '28.7 ETH', change: '-1.5%', volume: '180 ETH' },
-    'Azuki': { floor: '12.3 ETH', change: '+5.8%', volume: '95 ETH' },
-    'Clone X': { floor: '8.9 ETH', change: '+2.1%', volume: '67 ETH' },
-    'Moonbirds': { floor: '6.8 ETH', change: '-0.8%', volume: '42 ETH' },
-    'Doodles': { floor: '4.5 ETH', change: '+4.3%', volume: '38 ETH' }
+    'CryptoPunks': { floor: '49.5 ETH', avg: '47.2 ETH', change: '+3.2%' },
+    'Bored Ape': { floor: '28.7 ETH', avg: '26.8 ETH', change: '-1.5%' },
+    'Azuki': { floor: '12.3 ETH', avg: '11.5 ETH', change: '+5.8%' },
+    'Clone X': { floor: '8.9 ETH', avg: '8.2 ETH', change: '+2.1%' },
+    'Moonbirds': { floor: '6.8 ETH', avg: '6.3 ETH', change: '-0.8%' },
+    'Doodles': { floor: '4.5 ETH', avg: '4.1 ETH', change: '+4.3%' }
 };
-
-// تحديث الأسعار كل 5 دقائق (محاكاة)
-setInterval(() => {
-    Object.keys(nftPrices).forEach(key => {
-        const change = (Math.random() * 8 - 4).toFixed(1);
-        const floorChange = (Math.random() * 2 - 1).toFixed(1);
-        const currentFloor = parseFloat(nftPrices[key].floor);
-        const newFloor = (currentFloor + parseFloat(floorChange)).toFixed(1);
-        nftPrices[key].floor = `${newFloor} ETH`;
-        nftPrices[key].change = change > 0 ? `+${change}%` : `${change}%`;
-        nftPrices[key].volume = (parseFloat(nftPrices[key].volume) + (Math.random() * 20 - 10)).toFixed(0) + ' ETH';
-    });
-    console.log('🔄 تم تحديث أسعار NFT');
-}, 300000); // 5 دقائق
 
 // ========== القائمة الرئيسية ==========
 function mainMenu() {
@@ -54,20 +39,25 @@ function mainMenu() {
 👥 <b>1.2M</b> مشترك
 
 📊 <b>أهم أسعار NFT:</b>
-• CryptoPunks: <code>${nftPrices['CryptoPunks'].floor}</code> ${nftPrices['CryptoPunks'].change}
-• Bored Ape: <code>${nftPrices['Bored Ape'].floor}</code> ${nftPrices['Bored Ape'].change}
-• Azuki: <code>${nftPrices['Azuki'].floor}</code> ${nftPrices['Azuki'].change}
+• CryptoPunks: <code>${nftPrices['CryptoPunks'].floor}</code> (AVG: ${nftPrices['CryptoPunks'].avg})
+• Bored Ape: <code>${nftPrices['Bored Ape'].floor}</code> (AVG: ${nftPrices['Bored Ape'].avg})
+• Azuki: <code>${nftPrices['Azuki'].floor}</code> (AVG: ${nftPrices['Azuki'].avg})
 
-🔄 <b>يتم التحديث كل 5 دقائق</b>
+📌 <b>الأوامر المتوفرة:</b>
+/market — إشعارات بيع الهدايا
+/auction — إشعارات المزادات
+/search — بحث عن الهدايا
+/filter — تتبع الأسعار
+/me — سعر هداياك
 
-📌 <b>اختر من القائمة:</b>
+📌 <b>الاستخدام السريع:</b>
+@PriceNFTbot «link/username/id/TON-address»
         `,
         buttons: Markup.inlineKeyboard([
-            [Markup.button.callback('🔄 تحديث الأسعار', 'update_prices')],
             [Markup.button.callback('📊 عرض الأسعار', 'show_prices')],
-            [Markup.button.callback('🏆 أفضل NFT', 'top_nft')],
+            [Markup.button.callback('🔍 بحث عن هدية', 'search')],
             [Markup.button.callback('📈 تحليل السوق', 'market_analysis')],
-            [Markup.button.callback('🔔 تنبيه السعر', 'price_alert')],
+            [Markup.button.callback('🔔 تنبيهات المزاد', 'auction')],
             [Markup.button.callback('📢 القناة الرسمية', 'channel')],
             [Markup.button.callback('🛠 الدعم الفني', 'support')]
         ], { columns: 2 })
@@ -81,24 +71,41 @@ function showAllPrices() {
         const nft = nftPrices[key];
         text += `<b>${key}</b>\n`;
         text += `• السعر الأرضي: <code>${nft.floor}</code>\n`;
-        text += `• التغير: <code>${nft.change}</code>\n`;
-        text += `• الحجم: <code>${nft.volume}</code>\n\n`;
+        text += `• متوسط السعر: <code>${nft.avg}</code>\n`;
+        text += `• التغير: <code>${nft.change}</code>\n\n`;
     });
     text += `🔄 <b>آخر تحديث:</b> <code>${new Date().toLocaleTimeString()}</code>`;
     return text;
 }
 
 // ========== الأزرار ==========
+bot.action('show_prices', async (ctx) => {
+    await ctx.answerCbQuery('📊 عرض الأسعار');
+    await ctx.replyWithHTML(`
+${showAllPrices()}
+
+📌 <b>للحصول على سعر هداياك:</b>
+أرسل /me
+    `, {
+        reply_markup: {
+            inline_keyboard: [
+                [Markup.button.callback('🔄 تحديث الأسعار', 'update_prices')],
+                [Markup.button.callback('🔙 العودة للقائمة', 'menu')]
+            ]
+        }
+    });
+});
+
 bot.action('update_prices', async (ctx) => {
-    // تحديث يدوي
     Object.keys(nftPrices).forEach(key => {
         const change = (Math.random() * 8 - 4).toFixed(1);
         const floorChange = (Math.random() * 2 - 1).toFixed(1);
+        const avgChange = (Math.random() * 2 - 1).toFixed(1);
         const currentFloor = parseFloat(nftPrices[key].floor);
-        const newFloor = (currentFloor + parseFloat(floorChange)).toFixed(1);
-        nftPrices[key].floor = `${newFloor} ETH`;
+        const currentAvg = parseFloat(nftPrices[key].avg);
+        nftPrices[key].floor = `${(currentFloor + parseFloat(floorChange)).toFixed(1)} ETH`;
+        nftPrices[key].avg = `${(currentAvg + parseFloat(avgChange)).toFixed(1)} ETH`;
         nftPrices[key].change = change > 0 ? `+${change}%` : `${change}%`;
-        nftPrices[key].volume = (parseFloat(nftPrices[key].volume) + (Math.random() * 20 - 10)).toFixed(0) + ' ETH';
     });
     
     await ctx.answerCbQuery('🔄 تم تحديث الأسعار');
@@ -115,39 +122,23 @@ ${showAllPrices()}
     });
 });
 
-bot.action('show_prices', async (ctx) => {
-    await ctx.answerCbQuery('📊 عرض الأسعار');
+bot.action('search', async (ctx) => {
+    await ctx.answerCbQuery('🔍 بحث عن هدية');
     await ctx.replyWithHTML(`
-${showAllPrices()}
+<b>🔍 بحث عن الهدايا</b>
 
-📌 <b>شارك الأسعار مع أصدقائك!</b>
+📌 <b>ابحث عن هدية عن طريق:</b>
+• النموذج (Model)
+• الخلفية (Background)
+• النمط (Pattern)
+
+📌 <b>مثال:</b>
+<code>/search CryptoPunks</code>
+
+📌 <b>نتائج البحث:</b>
+• CryptoPunks: 49.5 ETH (Floor)
+• CryptoPunks: 47.2 ETH (AVG)
     `, {
-        reply_markup: {
-            inline_keyboard: [
-                [Markup.button.callback('🔄 تحديث الأسعار', 'update_prices')],
-                [Markup.button.callback('🔙 العودة للقائمة', 'menu')]
-            ]
-        }
-    });
-});
-
-bot.action('top_nft', async (ctx) => {
-    await ctx.answerCbQuery('🏆 أفضل NFT');
-    const sorted = Object.keys(nftPrices).sort((a, b) => {
-        const priceA = parseFloat(nftPrices[a].floor);
-        const priceB = parseFloat(nftPrices[b].floor);
-        return priceB - priceA;
-    });
-    
-    let text = '<b>🏆 ترتيب أفضل NFT</b>\n\n';
-    sorted.forEach((key, index) => {
-        const nft = nftPrices[key];
-        const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index+1}.`;
-        text += `${medal} <b>${key}</b>\n`;
-        text += `   السعر: <code>${nft.floor}</code> (${nft.change})\n\n`;
-    });
-    
-    await ctx.replyWithHTML(text, {
         reply_markup: {
             inline_keyboard: [
                 [Markup.button.callback('🔙 العودة للقائمة', 'menu')]
@@ -177,6 +168,10 @@ bot.action('market_analysis', async (ctx) => {
 
 📌 <b>توقعات السوق:</b>
 🟢 إيجابية مع ارتفاع في الطلب
+
+🔔 <b>للحصول على إشعارات:</b>
+/market - إشعارات البيع
+/auction - إشعارات المزاد
     `, {
         reply_markup: {
             inline_keyboard: [
@@ -186,26 +181,23 @@ bot.action('market_analysis', async (ctx) => {
     });
 });
 
-bot.action('price_alert', async (ctx) => {
-    await ctx.answerCbQuery('🔔 تنبيه السعر');
+bot.action('auction', async (ctx) => {
+    await ctx.answerCbQuery('🔔 تنبيهات المزاد');
     await ctx.replyWithHTML(`
-<b>🔔 تنبيه سعر NFT</b>
+<b>🔔 تنبيهات المزاد</b>
 
-📌 <b>قم بتعيين تنبيه للسعر:</b>
+📌 <b>إشعارات المزادات الجديدة</b>
 
-1️⃣ <b>تنبيه ارتفاع:</b>
-عندما يصل السعر إلى حد معين
+🔔 <b>المزادات النشطة:</b>
+• CryptoPunks #1234: 50 ETH
+• Bored Ape #5678: 30 ETH
+• Azuki #9012: 15 ETH
 
-2️⃣ <b>تنبيه انخفاض:</b>
-عندما ينخفض السعر إلى حد معين
+📌 <b>لتفعيل التنبيهات:</b>
+<code>/auction CryptoPunks</code>
 
-📌 <b>لتفعيل التنبيه:</b>
-أرسل الأمر التالي:
-<code>/alert CryptoPunks 50 ETH</code>
-
-🔔 <b>التنبيهات الحالية:</b>
-• CryptoPunks: عند 50 ETH
-• Bored Ape: عند 25 ETH
+📌 <b>لإلغاء التنبيهات:</b>
+<code>/auction stop</code>
     `, {
         reply_markup: {
             inline_keyboard: [
@@ -257,7 +249,8 @@ bot.action('support', async (ctx) => {
 📌 <b>الأسئلة الشائعة:</b>
 • كيف يتم تحديث الأسعار؟ كل 5 دقائق
 • هل البوت مجاني؟ نعم
-• كيف أشارك الأسعار؟ اضغط على زر المشاركة
+• كيف أبحث عن هدية؟ استخدم /search
+• كيف أتابع الأسعار؟ استخدم /filter
     `, {
         reply_markup: {
             inline_keyboard: [
@@ -284,12 +277,18 @@ bot.start(async (ctx) => {
 <b>💰 مرحباً بك في بوت NFT Price</b>
 
 📊 <b>أهم الأسعار:</b>
-• CryptoPunks: <code>${nftPrices['CryptoPunks'].floor}</code>
-• Bored Ape: <code>${nftPrices['Bored Ape'].floor}</code>
+• CryptoPunks: <code>${nftPrices['CryptoPunks'].floor}</code> (AVG: ${nftPrices['CryptoPunks'].avg})
+• Bored Ape: <code>${nftPrices['Bored Ape'].floor}</code> (AVG: ${nftPrices['Bored Ape'].avg})
 
-🔄 <b>يتم التحديث كل 5 دقائق</b>
+📌 <b>الأوامر المتوفرة:</b>
+/market — إشعارات بيع الهدايا
+/auction — إشعارات المزادات
+/search — بحث عن الهدايا
+/filter — تتبع الأسعار
+/me — سعر هداياك
 
-📌 <b>اختر من القائمة:</b>
+📌 <b>الاستخدام السريع:</b>
+@PriceNFTbot «link/username/id/TON-address»
     `);
     await ctx.replyWithHTML(data.text, { ...data.buttons, disable_web_page_preview: true });
 });
@@ -299,8 +298,195 @@ bot.command('menu', async (ctx) => {
     await ctx.replyWithHTML(data.text, { ...data.buttons, disable_web_page_preview: true });
 });
 
-bot.command('price', async (ctx) => {
-    await ctx.replyWithHTML(showAllPrices());
+bot.command('me', async (ctx) => {
+    await ctx.replyWithHTML(`
+<b>🎁 سعر هداياك</b>
+
+📊 <b>هداياك الحالية:</b>
+• CryptoPunks: <code>49.5 ETH</code> (Floor)
+• Bored Ape: <code>28.7 ETH</code> (Floor)
+
+💰 <b>إجمالي القيمة:</b> <code>78.2 ETH</code>
+
+📌 <b>للحصول على سعر محدد:</b>
+@PriceNFTbot «link/username/id/TON-address»
+    `);
+});
+
+bot.command('market', async (ctx) => {
+    await ctx.replyWithHTML(`
+<b>🔔 إشعارات بيع الهدايا</b>
+
+📌 <b>تم تفعيل الإشعارات</b>
+
+🔔 <b>سيتم إعلامك عند:</b>
+• طرح هدية للبيع
+• تغير السعر الأرضي
+• صفقات جديدة
+
+📌 <b>لإلغاء الإشعارات:</b>
+<code>/market stop</code>
+    `);
+});
+
+bot.command('auction', async (ctx) => {
+    const args = ctx.message.text.split(' ');
+    if (args.length > 1 && args[1] === 'stop') {
+        await ctx.replyWithHTML(`
+<b>✅ تم إلغاء تنبيهات المزاد</b>
+
+📌 لن تصلك أي إشعارات مزاد جديدة
+        `);
+        return;
+    }
+    
+    await ctx.replyWithHTML(`
+<b>🔔 تنبيهات المزاد</b>
+
+📌 <b>تم تفعيل التنبيهات</b>
+
+🔔 <b>المزادات النشطة:</b>
+• CryptoPunks #1234: 50 ETH
+• Bored Ape #5678: 30 ETH
+
+📌 <b>لإلغاء التنبيهات:</b>
+<code>/auction stop</code>
+    `);
+});
+
+bot.command('search', async (ctx) => {
+    const args = ctx.message.text.split(' ');
+    if (args.length < 2) {
+        await ctx.replyWithHTML(`
+<b>❌ استخدام خاطئ</b>
+
+📌 <b>الاستخدام الصحيح:</b>
+<code>/search [النموذج]</code>
+
+مثال:
+<code>/search CryptoPunks</code>
+        `);
+        return;
+    }
+    
+    const query = args.slice(1).join(' ');
+    const results = Object.keys(nftPrices).filter(key => 
+        key.toLowerCase().includes(query.toLowerCase())
+    );
+    
+    if (results.length === 0) {
+        await ctx.replyWithHTML(`
+<b>❌ لم يتم العثور على نتائج</b>
+
+📌 حاول البحث بـ:
+• النموذج (Model)
+• الخلفية (Background)
+• النمط (Pattern)
+        `);
+        return;
+    }
+    
+    let text = `<b>🔍 نتائج البحث عن: "${query}"</b>\n\n`;
+    results.forEach(key => {
+        const nft = nftPrices[key];
+        text += `<b>${key}</b>\n`;
+        text += `• السعر الأرضي: <code>${nft.floor}</code>\n`;
+        text += `• متوسط السعر: <code>${nft.avg}</code>\n\n`;
+    });
+    
+    await ctx.replyWithHTML(text);
+});
+
+bot.command('filter', async (ctx) => {
+    const args = ctx.message.text.split(' ');
+    if (args.length < 2) {
+        await ctx.replyWithHTML(`
+<b>❌ استخدام خاطئ</b>
+
+📌 <b>الاستخدام الصحيح:</b>
+<code>/filter [النموذج]</code>
+
+مثال:
+<code>/filter CryptoPunks</code>
+
+📌 <b>لإزالة من القائمة:</b>
+<code>/filter remove CryptoPunks</code>
+        `);
+        return;
+    }
+    
+    if (args[1] === 'remove') {
+        await ctx.replyWithHTML(`
+<b>✅ تم إزالة ${args.slice(2).join(' ')} من قائمة التتبع</b>
+        `);
+        return;
+    }
+    
+    const model = args.slice(1).join(' ');
+    await ctx.replyWithHTML(`
+<b>✅ تم إضافة ${model} إلى قائمة التتبع</b>
+
+📌 <b>سيتم تتبع الأسعار لهذا النموذج</b>
+• السعر الأرضي: <code>${nftPrices[model]?.floor || 'غير متوفر'}</code>
+• متوسط السعر: <code>${nftPrices[model]?.avg || 'غير متوفر'}</code>
+
+📌 <b>لإزالة من القائمة:</b>
+<code>/filter remove ${model}</code>
+    `);
+});
+
+// ========== معالجة الـ Inline Queries ==========
+bot.on('inline_query', async (ctx) => {
+    const query = ctx.inlineQuery.query;
+    const results = [];
+    
+    if (query) {
+        Object.keys(nftPrices).forEach(key => {
+            if (key.toLowerCase().includes(query.toLowerCase())) {
+                const nft = nftPrices[key];
+                results.push({
+                    type: 'article',
+                    id: key,
+                    title: key,
+                    description: `Floor: ${nft.floor} | AVG: ${nft.avg} | ${nft.change}`,
+                    input_message_content: {
+                        message_text: `
+<b>💰 ${key}</b>
+
+• السعر الأرضي: <code>${nft.floor}</code>
+• متوسط السعر: <code>${nft.avg}</code>
+• التغير: <code>${nft.change}</code>
+
+🔄 تحديث: ${new Date().toLocaleTimeString()}
+                        `,
+                        parse_mode: 'HTML'
+                    },
+                    reply_markup: {
+                        inline_keyboard: [
+                            [{ text: '🔍 عرض التفاصيل', callback_data: `detail_${key}` }]
+                        ]
+                    }
+                });
+            }
+        });
+    }
+    
+    if (results.length === 0 && query) {
+        results.push({
+            type: 'article',
+            id: 'not_found',
+            title: '❌ لم يتم العثور على نتائج',
+            description: 'حاول البحث عن نموذج آخر',
+            input_message_content: {
+                message_text: '❌ لم يتم العثور على نتائج للبحث: ' + query
+            }
+        });
+    }
+    
+    await ctx.answerInlineQuery(results, {
+        cache_time: 300,
+        is_personal: true
+    });
 });
 
 // ========== تشغيل البوت ==========
@@ -312,7 +498,6 @@ bot.launch({
     console.log('✅ Bot is running successfully!');
     console.log('🤖 Bot: @PriceNFTbot');
     console.log('👑 المطور: @SSSTlF');
-    console.log('💰 تم تحميل أسعار NFT');
 }).catch((err) => {
     console.error('❌ Failed to start bot:', err.message);
 });
