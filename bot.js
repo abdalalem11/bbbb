@@ -11,8 +11,8 @@ const PORT = process.env.PORT || 10000;
 
 app.get('/', (req, res) => {
     res.send(`
-        <h1 style="color:blue;text-align:center;">💰 TON Price Bot</h1>
-        <p style="text-align:center;">🤖 @tonpricesbot</p>
+        <h1 style="color:purple;text-align:center;">💰 NFT Price Bot</h1>
+        <p style="text-align:center;">🤖 @PriceNFTbot</p>
         <p style="text-align:center;">👑 المطور: @SSSTlF</p>
     `);
 });
@@ -21,74 +21,91 @@ const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`✅ Web server running on port ${PORT}`);
 });
 
-// ========== سعر TON ==========
-let tonPrice = {
-    usd: '5.42',
-    btc: '0.000085',
-    change: '+2.3%'
+// ========== أسعار NFT ==========
+let nftPrices = {
+    'CryptoPunks': { floor: '49.5 ETH', change: '+3.2%', volume: '245 ETH' },
+    'Bored Ape': { floor: '28.7 ETH', change: '-1.5%', volume: '180 ETH' },
+    'Azuki': { floor: '12.3 ETH', change: '+5.8%', volume: '95 ETH' },
+    'Clone X': { floor: '8.9 ETH', change: '+2.1%', volume: '67 ETH' },
+    'Moonbirds': { floor: '6.8 ETH', change: '-0.8%', volume: '42 ETH' },
+    'Doodles': { floor: '4.5 ETH', change: '+4.3%', volume: '38 ETH' }
 };
 
-// تحديث السعر كل 5 دقائق (محاكاة)
+// تحديث الأسعار كل 5 دقائق (محاكاة)
 setInterval(() => {
-    const randomChange = (Math.random() * 4 - 2).toFixed(1);
-    const basePrice = 5.42 + (Math.random() * 0.5 - 0.25);
-    tonPrice = {
-        usd: basePrice.toFixed(2),
-        btc: (basePrice * 0.0000157).toFixed(6),
-        change: randomChange > 0 ? `+${randomChange}%` : `${randomChange}%`
-    };
-    console.log(`💰 تحديث السعر: $${tonPrice.usd} | ${tonPrice.change}`);
+    Object.keys(nftPrices).forEach(key => {
+        const change = (Math.random() * 8 - 4).toFixed(1);
+        const floorChange = (Math.random() * 2 - 1).toFixed(1);
+        const currentFloor = parseFloat(nftPrices[key].floor);
+        const newFloor = (currentFloor + parseFloat(floorChange)).toFixed(1);
+        nftPrices[key].floor = `${newFloor} ETH`;
+        nftPrices[key].change = change > 0 ? `+${change}%` : `${change}%`;
+        nftPrices[key].volume = (parseFloat(nftPrices[key].volume) + (Math.random() * 20 - 10)).toFixed(0) + ' ETH';
+    });
+    console.log('🔄 تم تحديث أسعار NFT');
 }, 300000); // 5 دقائق
 
 // ========== القائمة الرئيسية ==========
 function mainMenu() {
     return {
         text: `
-<b>💰 TON Price</b>
+<b>💰 NFT Price Bot</b>
 
-👥 <b>57,836</b> مشترك
+👥 <b>1.2M</b> مشترك
 
-📊 <b>سعر TON الحالي:</b>
-💵 <b>USD:</b> <code>$${tonPrice.usd}</code>
-₿ <b>BTC:</b> <code>${tonPrice.btc}</code>
-📈 <b>التغير:</b> <code>${tonPrice.change}</code>
+📊 <b>أهم أسعار NFT:</b>
+• CryptoPunks: <code>${nftPrices['CryptoPunks'].floor}</code> ${nftPrices['CryptoPunks'].change}
+• Bored Ape: <code>${nftPrices['Bored Ape'].floor}</code> ${nftPrices['Bored Ape'].change}
+• Azuki: <code>${nftPrices['Azuki'].floor}</code> ${nftPrices['Azuki'].change}
 
-🔄 <b>يتم تحديث السعر كل 5 دقائق</b>
+🔄 <b>يتم التحديث كل 5 دقائق</b>
 
 📌 <b>اختر من القائمة:</b>
         `,
         buttons: Markup.inlineKeyboard([
-            [Markup.button.callback('🔄 تحديث السعر', 'update_price')],
-            [Markup.button.callback('📊 عرض السعر', 'show_price')],
-            [Markup.button.callback('📤 مشاركة السعر', 'share_price')],
-            [Markup.button.callback('📈 الرسم البياني', 'chart')],
-            [Markup.button.callback('🔔 تنبيه السعر', 'alert')],
+            [Markup.button.callback('🔄 تحديث الأسعار', 'update_prices')],
+            [Markup.button.callback('📊 عرض الأسعار', 'show_prices')],
+            [Markup.button.callback('🏆 أفضل NFT', 'top_nft')],
+            [Markup.button.callback('📈 تحليل السوق', 'market_analysis')],
+            [Markup.button.callback('🔔 تنبيه السعر', 'price_alert')],
             [Markup.button.callback('📢 القناة الرسمية', 'channel')],
             [Markup.button.callback('🛠 الدعم الفني', 'support')]
         ], { columns: 2 })
     };
 }
 
+// ========== عرض جميع الأسعار ==========
+function showAllPrices() {
+    let text = '<b>📊 أسعار NFT الحالية</b>\n\n';
+    Object.keys(nftPrices).forEach(key => {
+        const nft = nftPrices[key];
+        text += `<b>${key}</b>\n`;
+        text += `• السعر الأرضي: <code>${nft.floor}</code>\n`;
+        text += `• التغير: <code>${nft.change}</code>\n`;
+        text += `• الحجم: <code>${nft.volume}</code>\n\n`;
+    });
+    text += `🔄 <b>آخر تحديث:</b> <code>${new Date().toLocaleTimeString()}</code>`;
+    return text;
+}
+
 // ========== الأزرار ==========
-bot.action('update_price', async (ctx) => {
-    // تحديث السعر يدوياً
-    const randomChange = (Math.random() * 4 - 2).toFixed(1);
-    const basePrice = 5.42 + (Math.random() * 0.5 - 0.25);
-    tonPrice = {
-        usd: basePrice.toFixed(2),
-        btc: (basePrice * 0.0000157).toFixed(6),
-        change: randomChange > 0 ? `+${randomChange}%` : `${randomChange}%`
-    };
+bot.action('update_prices', async (ctx) => {
+    // تحديث يدوي
+    Object.keys(nftPrices).forEach(key => {
+        const change = (Math.random() * 8 - 4).toFixed(1);
+        const floorChange = (Math.random() * 2 - 1).toFixed(1);
+        const currentFloor = parseFloat(nftPrices[key].floor);
+        const newFloor = (currentFloor + parseFloat(floorChange)).toFixed(1);
+        nftPrices[key].floor = `${newFloor} ETH`;
+        nftPrices[key].change = change > 0 ? `+${change}%` : `${change}%`;
+        nftPrices[key].volume = (parseFloat(nftPrices[key].volume) + (Math.random() * 20 - 10)).toFixed(0) + ' ETH';
+    });
     
-    await ctx.answerCbQuery('🔄 تم تحديث السعر');
+    await ctx.answerCbQuery('🔄 تم تحديث الأسعار');
     await ctx.replyWithHTML(`
-<b>✅ تم تحديث السعر</b>
+<b>✅ تم تحديث الأسعار</b>
 
-💵 <b>USD:</b> <code>$${tonPrice.usd}</code>
-₿ <b>BTC:</b> <code>${tonPrice.btc}</code>
-📈 <b>التغير:</b> <code>${tonPrice.change}</code>
-
-🔄 <b>آخر تحديث:</b> <code>${new Date().toLocaleTimeString()}</code>
+${showAllPrices()}
     `, {
         reply_markup: {
             inline_keyboard: [
@@ -98,44 +115,39 @@ bot.action('update_price', async (ctx) => {
     });
 });
 
-bot.action('show_price', async (ctx) => {
-    await ctx.answerCbQuery('📊 عرض السعر');
+bot.action('show_prices', async (ctx) => {
+    await ctx.answerCbQuery('📊 عرض الأسعار');
     await ctx.replyWithHTML(`
-<b>📊 سعر TON الحالي</b>
+${showAllPrices()}
 
-💵 <b>USD:</b> <code>$${tonPrice.usd}</code>
-₿ <b>BTC:</b> <code>${tonPrice.btc}</code>
-📈 <b>التغير:</b> <code>${tonPrice.change}</code>
-
-🔄 <b>آخر تحديث:</b> <code>${new Date().toLocaleTimeString()}</code>
-⏱ <b>التحديث القادم:</b> بعد 5 دقائق
-
-📌 <b>شارك السعر مع أصدقائك!</b>
+📌 <b>شارك الأسعار مع أصدقائك!</b>
     `, {
         reply_markup: {
             inline_keyboard: [
-                [Markup.button.callback('📤 مشاركة السعر', 'share_price')],
+                [Markup.button.callback('🔄 تحديث الأسعار', 'update_prices')],
                 [Markup.button.callback('🔙 العودة للقائمة', 'menu')]
             ]
         }
     });
 });
 
-bot.action('share_price', async (ctx) => {
-    await ctx.answerCbQuery('📤 جاري التجهيز للمشاركة');
-    await ctx.replyWithHTML(`
-<b>📤 شارك سعر TON</b>
-
-💵 <b>سعر TON الحالي:</b> <code>$${tonPrice.usd}</code>
-📈 <b>التغير:</b> <code>${tonPrice.change}</code>
-
-📌 <b>انسخ النص وأرسله لأصدقائك:</b>
-<code>💰 سعر TON الآن: $${tonPrice.usd} (${tonPrice.change})
-🔄 يتم التحديث كل 5 دقائق
-🤖 @tonpricesbot</code>
-
-🔗 <b>رابط البوت:</b> https://t.me/tonpricesbot
-    `, {
+bot.action('top_nft', async (ctx) => {
+    await ctx.answerCbQuery('🏆 أفضل NFT');
+    const sorted = Object.keys(nftPrices).sort((a, b) => {
+        const priceA = parseFloat(nftPrices[a].floor);
+        const priceB = parseFloat(nftPrices[b].floor);
+        return priceB - priceA;
+    });
+    
+    let text = '<b>🏆 ترتيب أفضل NFT</b>\n\n';
+    sorted.forEach((key, index) => {
+        const nft = nftPrices[key];
+        const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index+1}.`;
+        text += `${medal} <b>${key}</b>\n`;
+        text += `   السعر: <code>${nft.floor}</code> (${nft.change})\n\n`;
+    });
+    
+    await ctx.replyWithHTML(text, {
         reply_markup: {
             inline_keyboard: [
                 [Markup.button.callback('🔙 العودة للقائمة', 'menu')]
@@ -144,53 +156,56 @@ bot.action('share_price', async (ctx) => {
     });
 });
 
-bot.action('chart', async (ctx) => {
-    await ctx.answerCbQuery('📈 الرسم البياني');
+bot.action('market_analysis', async (ctx) => {
+    await ctx.answerCbQuery('📈 تحليل السوق');
     await ctx.replyWithHTML(`
-<b>📈 الرسم البياني لسعر TON</b>
+<b>📈 تحليل سوق NFT</b>
 
-📊 <b>البيانات المتوفرة:</b>
-• السعر الحالي: <code>$${tonPrice.usd}</code>
-• التغير: <code>${tonPrice.change}</code>
-• آخر تحديث: <code>${new Date().toLocaleTimeString()}</code>
+📊 <b>إجمالي السوق:</b>
+• القيمة السوقية: <code>$8.5B</code>
+• الحجم اليومي: <code>$245M</code>
+• عدد التداولات: <code>12.4K</code>
 
-📌 <b>للحصول على رسم بياني تفصيلي:</b>
-🔗 https://www.coingecko.com/en/coins/toncoin
+📈 <b>أفضل الأداء:</b>
+• Azuki: <code>+5.8%</code>
+• Doodles: <code>+4.3%</code>
+• CryptoPunks: <code>+3.2%</code>
 
-📊 <b>بيانات السوق:</b>
-• أعلى سعر اليوم: $5.68
-• أدنى سعر اليوم: $5.12
-• الحجم: 24.5M
+📉 <b>أسوأ الأداء:</b>
+• Bored Ape: <code>-1.5%</code>
+• Moonbirds: <code>-0.8%</code>
+
+📌 <b>توقعات السوق:</b>
+🟢 إيجابية مع ارتفاع في الطلب
     `, {
         reply_markup: {
             inline_keyboard: [
-                [Markup.button.callback('🔄 تحديث السعر', 'update_price')],
                 [Markup.button.callback('🔙 العودة للقائمة', 'menu')]
             ]
         }
     });
 });
 
-bot.action('alert', async (ctx) => {
+bot.action('price_alert', async (ctx) => {
     await ctx.answerCbQuery('🔔 تنبيه السعر');
     await ctx.replyWithHTML(`
-<b>🔔 تنبيه السعر</b>
+<b>🔔 تنبيه سعر NFT</b>
 
 📌 <b>قم بتعيين تنبيه للسعر:</b>
 
 1️⃣ <b>تنبيه ارتفاع:</b>
-عندما يصل السعر إلى $6.00
+عندما يصل السعر إلى حد معين
 
 2️⃣ <b>تنبيه انخفاض:</b>
-عندما يصل السعر إلى $5.00
+عندما ينخفض السعر إلى حد معين
 
 📌 <b>لتفعيل التنبيه:</b>
 أرسل الأمر التالي:
-<code>/alert 6.00</code> (لارتفاع)
-<code>/alert 5.00</code> (لانخفاض)
+<code>/alert CryptoPunks 50 ETH</code>
 
 🔔 <b>التنبيهات الحالية:</b>
-• لا توجد تنبيهات نشطة
+• CryptoPunks: عند 50 ETH
+• Bored Ape: عند 25 ETH
     `, {
         reply_markup: {
             inline_keyboard: [
@@ -203,24 +218,25 @@ bot.action('alert', async (ctx) => {
 bot.action('channel', async (ctx) => {
     await ctx.answerCbQuery('📢 القناة الرسمية');
     await ctx.replyWithHTML(`
-<b>📢 قناة TON Price الرسمية</b>
+<b>📢 قناة NFT Price الرسمية</b>
 
-👥 <b>المشتركين:</b> 57,836
+👥 <b>المشتركين:</b> 1.2M
 
 📊 <b>مميزات القناة:</b>
-• تحديث السعر كل 5 دقائق
-• أخبار TON الحصرية
+• تحديث الأسعار كل 5 دقائق
+• أخبار NFT الحصرية
 • تحليلات السوق
+• صفقات مميزة
 
 🔗 <b>رابط القناة:</b>
-https://t.me/tonprices
+https://t.me/PriceNFTbot
 
-🤖 <b>بوت السعر:</b>
-@tonpricesbot
+🤖 <b>بوت الأسعار:</b>
+@PriceNFTbot
     `, {
         reply_markup: {
             inline_keyboard: [
-                [Markup.button.url('📢 اشترك في القناة', 'https://t.me/tonprices')],
+                [Markup.button.url('📢 اشترك في القناة', 'https://t.me/PriceNFTbot')],
                 [Markup.button.callback('🔙 العودة للقائمة', 'menu')]
             ]
         }
@@ -239,9 +255,9 @@ bot.action('support', async (ctx) => {
 ⏰ <b>أوقات الدعم:</b> 24/7
 
 📌 <b>الأسئلة الشائعة:</b>
-• كيف يتم تحديث السعر؟ كل 5 دقائق
+• كيف يتم تحديث الأسعار؟ كل 5 دقائق
 • هل البوت مجاني؟ نعم
-• كيف أشارك السعر؟ اضغط على زر المشاركة
+• كيف أشارك الأسعار؟ اضغط على زر المشاركة
     `, {
         reply_markup: {
             inline_keyboard: [
@@ -265,9 +281,12 @@ bot.action('menu', async (ctx) => {
 bot.start(async (ctx) => {
     const data = mainMenu();
     await ctx.replyWithHTML(`
-<b>💰 مرحباً بك في بوت TON Price</b>
+<b>💰 مرحباً بك في بوت NFT Price</b>
 
-📊 <b>سعر TON الحالي:</b> <code>$${tonPrice.usd}</code>
+📊 <b>أهم الأسعار:</b>
+• CryptoPunks: <code>${nftPrices['CryptoPunks'].floor}</code>
+• Bored Ape: <code>${nftPrices['Bored Ape'].floor}</code>
+
 🔄 <b>يتم التحديث كل 5 دقائق</b>
 
 📌 <b>اختر من القائمة:</b>
@@ -281,11 +300,7 @@ bot.command('menu', async (ctx) => {
 });
 
 bot.command('price', async (ctx) => {
-    await ctx.replyWithHTML(`
-💰 <b>سعر TON</b>
-💵 <b>USD:</b> <code>$${tonPrice.usd}</code>
-📈 <b>التغير:</b> <code>${tonPrice.change}</code>
-    `);
+    await ctx.replyWithHTML(showAllPrices());
 });
 
 // ========== تشغيل البوت ==========
@@ -295,9 +310,9 @@ bot.launch({
     dropPendingUpdates: true
 }).then(() => {
     console.log('✅ Bot is running successfully!');
-    console.log('🤖 Bot: @tonpricesbot');
+    console.log('🤖 Bot: @PriceNFTbot');
     console.log('👑 المطور: @SSSTlF');
-    console.log(`💰 سعر TON: $${tonPrice.usd}`);
+    console.log('💰 تم تحميل أسعار NFT');
 }).catch((err) => {
     console.error('❌ Failed to start bot:', err.message);
 });
