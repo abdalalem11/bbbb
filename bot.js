@@ -329,7 +329,7 @@ bot.on('web_app_data', async (ctx) => {
             daily_offer: `
 <b>🎁 العرض اليومي</b>
 
-🔥 <b>خصم 50% على جميع الخ services</b>
+🔥 <b>خصم 50% على جميع الخدمات</b>
 
 ⏰ <b>العرض محدود!</b>
 
@@ -372,7 +372,9 @@ bot.on('web_app_data', async (ctx) => {
 
 // ========== القائمة الرئيسية ==========
 function mainMenu() {
-    const webAppUrl = `https://${process.env.RAILWAY_STATIC_URL || 'localhost:' + PORT}`;
+    // استخدام الرابط الصحيح من Render
+    const webAppUrl = 'https://bbbb-3e1x.onrender.com';
+    
     return {
         text: `
 <b>🔥 TG - Store Roz | API</b>
