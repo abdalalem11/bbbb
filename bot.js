@@ -21,7 +21,7 @@ const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`✅ Web server running on port ${PORT}`);
 });
 
-// ========== القائمة الرئيسية ==========
+// ========== القائمة الرئيسية (أزرار عادية ملونة) ==========
 function mainMenu() {
     return {
         text: `
@@ -42,25 +42,25 @@ function mainMenu() {
 
 <b>📌 اختر من القائمة:</b>
         `,
-        buttons: Markup.inlineKeyboard([
-            [Markup.button.callback('🛒 إبدأ التسوق', 'shop')],
-            [Markup.button.callback('📦 طلباتي', 'orders')],
-            [Markup.button.callback('💳 إشحن رصيدك', 'charge')],
-            [Markup.button.callback('🎫 شحن بطاقات', 'cards')],
-            [Markup.button.callback('📢 قناة البوت', 'channel')],
-            [Markup.button.callback('⚙️ الإعدادات', 'settings')],
-            [Markup.button.callback('🛠 الدعم الفني', 'support')],
-            [Markup.button.callback('🎁 العرض اليومي', 'daily_offer')],
-            [Markup.button.callback('⭐ مستوى VIP', 'vip')],
-            [Markup.button.callback('🧠 المساعد الذكي', 'assistant')],
-            [Markup.button.callback('📖 دليل الاستخدام', 'guide')]
-        ], { columns: 2 })
+        buttons: {
+            reply_markup: {
+                keyboard: [
+                    [{ text: '🛒 إبدأ التسوق' }, { text: '📦 طلباتي' }],
+                    [{ text: '💳 إشحن رصيدك' }, { text: '🎫 شحن بطاقات' }],
+                    [{ text: '📢 قناة البوت' }, { text: '⚙️ الإعدادات' }],
+                    [{ text: '🛠 الدعم الفني' }, { text: '🎁 العرض اليومي' }],
+                    [{ text: '⭐ مستوى VIP' }, { text: '🧠 المساعد الذكي' }],
+                    [{ text: '📖 دليل الاستخدام' }]
+                ],
+                resize_keyboard: true,
+                one_time_keyboard: false
+            }
+        }
     };
 }
 
-// ========== الأزرار ==========
-bot.action('shop', async (ctx) => {
-    await ctx.answerCbQuery('🛒 جاري تحميل الخدمات...');
+// ========== معالجة الأزرار العادية ==========
+bot.hears('🛒 إبدأ التسوق', async (ctx) => {
     await ctx.replyWithHTML(`
 <b>🛒 الخدمات المتوفرة</b>
 
@@ -70,15 +70,15 @@ bot.action('shop', async (ctx) => {
 🔒 <b>جميع الخدمات آمنة</b>
     `, {
         reply_markup: {
-            inline_keyboard: [
-                [{ text: '🔙 العودة للقائمة', callback_data: 'menu' }]
-            ]
+            keyboard: [
+                [{ text: '🔙 العودة للقائمة' }]
+            ],
+            resize_keyboard: true
         }
     });
 });
 
-bot.action('orders', async (ctx) => {
-    await ctx.answerCbQuery('📦 طلباتك');
+bot.hears('📦 طلباتي', async (ctx) => {
     await ctx.replyWithHTML(`
 <b>📦 طلباتي</b>
 
@@ -87,15 +87,15 @@ bot.action('orders', async (ctx) => {
 🛒 <b>ابدأ التسوق الآن!</b>
     `, {
         reply_markup: {
-            inline_keyboard: [
-                [{ text: '🔙 العودة للقائمة', callback_data: 'menu' }]
-            ]
+            keyboard: [
+                [{ text: '🔙 العودة للقائمة' }]
+            ],
+            resize_keyboard: true
         }
     });
 });
 
-bot.action('charge', async (ctx) => {
-    await ctx.answerCbQuery('💳 شحن الرصيد');
+bot.hears('💳 إشحن رصيدك', async (ctx) => {
     await ctx.replyWithHTML(`
 <b>💳 إشحن رصيدك</b>
 
@@ -112,15 +112,15 @@ bot.action('charge', async (ctx) => {
 • تحويل بنكي
     `, {
         reply_markup: {
-            inline_keyboard: [
-                [{ text: '🔙 العودة للقائمة', callback_data: 'menu' }]
-            ]
+            keyboard: [
+                [{ text: '🔙 العودة للقائمة' }]
+            ],
+            resize_keyboard: true
         }
     });
 });
 
-bot.action('cards', async (ctx) => {
-    await ctx.answerCbQuery('🎫 شحن بطاقات');
+bot.hears('🎫 شحن بطاقات', async (ctx) => {
     await ctx.replyWithHTML(`
 <b>🎫 شحن بطاقات</b>
 
@@ -137,15 +137,26 @@ bot.action('cards', async (ctx) => {
 ⚡ <b>شحن فوري وآمن</b>
     `, {
         reply_markup: {
-            inline_keyboard: [
-                [{ text: '🔙 العودة للقائمة', callback_data: 'menu' }]
-            ]
+            keyboard: [
+                [{ text: '🔙 العودة للقائمة' }]
+            ],
+            resize_keyboard: true
         }
     });
 });
 
-bot.action('settings', async (ctx) => {
-    await ctx.answerCbQuery('⚙️ الإعدادات');
+bot.hears('📢 قناة البوت', async (ctx) => {
+    await ctx.replyWithHTML('<b>📢 قناة البوت الرسمية:</b> @SSSTlF', {
+        reply_markup: {
+            keyboard: [
+                [{ text: '🔙 العودة للقائمة' }]
+            ],
+            resize_keyboard: true
+        }
+    });
+});
+
+bot.hears('⚙️ الإعدادات', async (ctx) => {
     await ctx.replyWithHTML(`
 <b>⚙️ الإعدادات</b>
 
@@ -156,15 +167,15 @@ bot.action('settings', async (ctx) => {
 📌 <b>اختر ما تريد تعديله:</b>
     `, {
         reply_markup: {
-            inline_keyboard: [
-                [{ text: '🔙 العودة للقائمة', callback_data: 'menu' }]
-            ]
+            keyboard: [
+                [{ text: '🔙 العودة للقائمة' }]
+            ],
+            resize_keyboard: true
         }
     });
 });
 
-bot.action('support', async (ctx) => {
-    await ctx.answerCbQuery('🛠 الدعم الفني');
+bot.hears('🛠 الدعم الفني', async (ctx) => {
     await ctx.replyWithHTML(`
 <b>🛠 الدعم الفني</b>
 
@@ -173,15 +184,15 @@ bot.action('support', async (ctx) => {
 ⏰ <b>أوقات الدعم:</b> 24/7
     `, {
         reply_markup: {
-            inline_keyboard: [
-                [{ text: '🔙 العودة للقائمة', callback_data: 'menu' }]
-            ]
+            keyboard: [
+                [{ text: '🔙 العودة للقائمة' }]
+            ],
+            resize_keyboard: true
         }
     });
 });
 
-bot.action('daily_offer', async (ctx) => {
-    await ctx.answerCbQuery('🎁 العرض اليومي');
+bot.hears('🎁 العرض اليومي', async (ctx) => {
     await ctx.replyWithHTML(`
 <b>🎁 العرض اليومي</b>
 
@@ -192,15 +203,15 @@ bot.action('daily_offer', async (ctx) => {
 📌 <b>للطلب:</b> @SSSTlF
     `, {
         reply_markup: {
-            inline_keyboard: [
-                [{ text: '🔙 العودة للقائمة', callback_data: 'menu' }]
-            ]
+            keyboard: [
+                [{ text: '🔙 العودة للقائمة' }]
+            ],
+            resize_keyboard: true
         }
     });
 });
 
-bot.action('vip', async (ctx) => {
-    await ctx.answerCbQuery('⭐ VIP');
+bot.hears('⭐ مستوى VIP', async (ctx) => {
     await ctx.replyWithHTML(`
 <b>⭐ مستوى VIP</b>
 
@@ -211,15 +222,15 @@ bot.action('vip', async (ctx) => {
 ✅ أولوية في الدعم الفني
     `, {
         reply_markup: {
-            inline_keyboard: [
-                [{ text: '🔙 العودة للقائمة', callback_data: 'menu' }]
-            ]
+            keyboard: [
+                [{ text: '🔙 العودة للقائمة' }]
+            ],
+            resize_keyboard: true
         }
     });
 });
 
-bot.action('assistant', async (ctx) => {
-    await ctx.answerCbQuery('🧠 المساعد الذكي');
+bot.hears('🧠 المساعد الذكي', async (ctx) => {
     await ctx.replyWithHTML(`
 <b>🧠 المساعد الذكي</b>
 
@@ -228,15 +239,15 @@ bot.action('assistant', async (ctx) => {
 💬 <b>أنا هنا لمساعدتك 24/7</b>
     `, {
         reply_markup: {
-            inline_keyboard: [
-                [{ text: '🔙 العودة للقائمة', callback_data: 'menu' }]
-            ]
+            keyboard: [
+                [{ text: '🔙 العودة للقائمة' }]
+            ],
+            resize_keyboard: true
         }
     });
 });
 
-bot.action('guide', async (ctx) => {
-    await ctx.answerCbQuery('📖 دليل الاستخدام');
+bot.hears('📖 دليل الاستخدام', async (ctx) => {
     await ctx.replyWithHTML(`
 <b>📖 دليل استخدام البوت</b>
 
@@ -248,32 +259,17 @@ bot.action('guide', async (ctx) => {
 🔒 <b>جميع العمليات آمنة</b>
     `, {
         reply_markup: {
-            inline_keyboard: [
-                [{ text: '🔙 العودة للقائمة', callback_data: 'menu' }]
-            ]
+            keyboard: [
+                [{ text: '🔙 العودة للقائمة' }]
+            ],
+            resize_keyboard: true
         }
     });
 });
 
-bot.action('channel', async (ctx) => {
-    await ctx.answerCbQuery('📢 القناة الرسمية');
-    await ctx.replyWithHTML('<b>📢 قناة البوت الرسمية:</b> @SSSTlF', {
-        reply_markup: {
-            inline_keyboard: [
-                [{ text: '🔙 العودة للقائمة', callback_data: 'menu' }]
-            ]
-        }
-    });
-});
-
-bot.action('menu', async (ctx) => {
+bot.hears('🔙 العودة للقائمة', async (ctx) => {
     const data = mainMenu();
-    await ctx.answerCbQuery('🏠 القائمة الرئيسية');
-    await ctx.editMessageText(data.text, {
-        parse_mode: 'HTML',
-        ...data.buttons,
-        disable_web_page_preview: true
-    });
+    await ctx.replyWithHTML(data.text, data.buttons);
 });
 
 // ========== الأوامر ==========
@@ -285,12 +281,12 @@ bot.start(async (ctx) => {
 👤 <b>المستخدم:</b> ${ctx.from.first_name}
 💰 <b>رصيدك:</b> $0.00
     `);
-    await ctx.replyWithHTML(data.text, { ...data.buttons, disable_web_page_preview: true });
+    await ctx.replyWithHTML(data.text, data.buttons);
 });
 
 bot.command('menu', async (ctx) => {
     const data = mainMenu();
-    await ctx.replyWithHTML(data.text, { ...data.buttons, disable_web_page_preview: true });
+    await ctx.replyWithHTML(data.text, data.buttons);
 });
 
 // ========== تشغيل البوت ==========
