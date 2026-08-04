@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 10000;
 
 app.get('/', (req, res) => {
     res.send(`
-        <h1 style="color:red;text-align:center;">🔥 TG - Store Roz | API</h1>
+        <h1 style="color:red;text-align:center;">🔥 متجر روز للتطبيقات</h1>
         <p style="text-align:center;">🤖 @StoreRozbot</p>
         <p style="text-align:center;color:red;">👑 المطور: @SSSTlF</p>
     `);
@@ -37,41 +37,12 @@ const COLORS = {
 function mainMenu() {
     return {
         text: `
-<b>🔥 TG - Store Roz | API</b>
+<b>🔥 متجر روز للتطبيقات</b>
 
 👤 <b>المستخدم:</b> ${userId}
-💰 <b>رصيدك:</b> <code>$0.0000 | $0.00</code>
-📊 <b>المستخدمين:</b> 1.75M شهرياً
+💰 <b>رصيدك:</b> <code>$0.0000</code>
 
 <b>📌 اختر من القائمة:</b>
-        `,
-        buttons: Markup.inlineKeyboard([
-            [Markup.button.callback('🛒 إبدأ التسوق', 'shop')],
-            [Markup.button.callback('📦 طلباتي', 'orders')],
-            [Markup.button.callback('💳 إشحن رصيدك', 'charge')],
-            [Markup.button.callback('🎫 شحن بطاقات', 'cards')],
-            [Markup.button.callback('📢 قناة البوت', 'channel')],
-            [Markup.button.callback('⚙️ الإعدادات', 'settings')],
-            [Markup.button.callback('🛠 الدعم الفني', 'support')],
-            [Markup.button.callback('🎁 العرض اليومي', 'daily_offer')],
-            [Markup.button.callback('⭐ مستوى VIP', 'vip')],
-            [Markup.button.callback('🧠 المساعد الذكي', 'assistant')],
-            [Markup.button.callback('📖 دليل الاستخدام', 'guide')]
-        ], { columns: 2 })
-    };
-}
-
-// ========== قائمة الخدمات ==========
-function servicesMenu() {
-    return {
-        text: `
-<b>🛒 اختر الخدمات</b>
-
-📌 <b>لرؤية المنتجات حسب عملك المحلية</b>
-
-💱 <b>العملة الحالية:</b> USD ($)
-
-<b>📦 جميع الخدمات تعمل تلقائياً وبشكل آمن</b>
         `,
         buttons: Markup.inlineKeyboard([
             [Markup.button.callback('📱 تطبيقات جوال', 'services_apps')],
@@ -85,130 +56,115 @@ function servicesMenu() {
     };
 }
 
-// ========== الإعدادات ==========
-function settingsMenu() {
+// ========== الخدمات ==========
+function servicesMenu() {
     return {
         text: `
-<b>⚙️ الإعدادات</b>
+<b>🛒 اختر الخدمات</b>
 
-🔹 <b>العملة:</b> USD ($)
-🔹 <b>اللغة:</b> العربية
-🔹 <b>الإشعارات:</b> مفعلة
-🔹 <b>الخصوصية:</b> عام
+📌 <b>لرؤية المنتجات حسب عملك المحلية</b>
+💱 <b>العملة الحالية:</b> USD ($)
 
-<b>📌 اختر ما تريد تعديله:</b>
+🔒 <b>جميع الخدمات تعمل تلقائياً وبشكل آمن</b>
         `,
         buttons: Markup.inlineKeyboard([
-            [Markup.button.callback('💱 تغيير العملة', 'change_currency')],
-            [Markup.button.callback('🌐 تغيير اللغة', 'change_language')],
-            [Markup.button.callback('🔔 الإشعارات', 'notifications')],
-            [Markup.button.callback('🔒 الخصوصية', 'privacy')],
-            [Markup.button.callback('🔙 العودة للقائمة', 'menu')]
+            [Markup.button.callback('📱 تطبيقات جوال', 'product_apps')],
+            [Markup.button.callback('🤖 بوتات تليجرام', 'product_bots')],
+            [Markup.button.callback('🌐 مواقع ويب', 'product_websites')],
+            [Markup.button.callback('💾 قواعد بيانات', 'product_databases')],
+            [Markup.button.callback('🛡️ أمن سيبراني', 'product_security')],
+            [Markup.button.callback('🎨 تصميم واجهات', 'product_design')],
+            [Markup.button.callback('🔙 العودة للقائمة', 'back_to_main')]
         ], { columns: 2 })
     };
 }
 
-// ========== الدعم الفني ==========
-function supportMenu() {
+// ========== المنتجات ==========
+const products = {
+    apps: {
+        title: '📱 تطبيقات جوال',
+        items: [
+            { name: 'تطبيق إدارة مبيعات', price: '150$', desc: 'تطبيق متكامل لإدارة المبيعات والمخزون' },
+            { name: 'تطبيق توصيل طلبات', price: '200$', desc: 'تطبيق مشابه لتوصيل الطلبات' },
+            { name: 'تطبيق تواصل اجتماعي', price: '350$', desc: 'تطبيق تواصل اجتماعي متكامل' },
+            { name: 'تطبيق حجز مواعيد', price: '180$', desc: 'نظام حجز مواعيد مع إشعارات' }
+        ]
+    },
+    bots: {
+        title: '🤖 بوتات تليجرام',
+        items: [
+            { name: 'بوت متجر إلكتروني', price: '120$', desc: 'بوت متجر مع نظام دفع' },
+            { name: 'بوت خدمة عملاء', price: '100$', desc: 'بوت ردود تلقائية للدعم' },
+            { name: 'بوت إدارة قنوات', price: '80$', desc: 'بوت لإدارة القنوات والأعضاء' },
+            { name: 'بوت مسابقات وألعاب', price: '150$', desc: 'بوت مسابقات مع نظام نقاط' }
+        ]
+    },
+    websites: {
+        title: '🌐 مواقع ويب',
+        items: [
+            { name: 'متجر إلكتروني كامل', price: '300$', desc: 'متجر مع بوابة دفع وشحن' },
+            { name: 'موقع شركة', price: '200$', desc: 'موقع شركة مع نظام إدارة محتوى' },
+            { name: 'منصة تعليمية', price: '350$', desc: 'منصة دروس مع اختبارات' },
+            { name: 'مدونة احترافية', price: '150$', desc: 'مدونة مع نظام تعليقات' }
+        ]
+    },
+    databases: {
+        title: '💾 قواعد بيانات',
+        items: [
+            { name: 'قاعدة بيانات SQL', price: '100$', desc: 'تصميم قاعدة بيانات SQL متكاملة' },
+            { name: 'قاعدة بيانات NoSQL', price: '120$', desc: 'تصميم قاعدة بيانات MongoDB' },
+            { name: 'لوحة تحكم إحصاءات', price: '180$', desc: 'لوحة تحكم مع رسوم بيانية' },
+            { name: 'نظام تقارير', price: '150$', desc: 'نظام تقارير وتحليلات' }
+        ]
+    },
+    security: {
+        title: '🛡️ أمن سيبراني',
+        items: [
+            { name: 'فحص ثغرات', price: '200$', desc: 'فحص أمني كامل للموقع' },
+            { name: 'تشفير بيانات', price: '150$', desc: 'نظام تشفير متقدم للبيانات' },
+            { name: 'حماية DDoS', price: '250$', desc: 'حماية ضد هجمات DDoS' },
+            { name: 'تدقيق أمني', price: '180$', desc: 'تدقيق أمني شامل' }
+        ]
+    },
+    design: {
+        title: '🎨 تصميم واجهات',
+        items: [
+            { name: 'تصميم UI/UX', price: '100$', desc: 'تصميم واجهات متكاملة' },
+            { name: 'تصميم شعار', price: '50$', desc: 'تصميم شعار احترافي' },
+            { name: 'تصميم تطبيق', price: '200$', desc: 'تصميم واجهة تطبيق جوال' },
+            { name: 'تصميم موقع', price: '150$', desc: 'تصميم واجهة موقع ويب' }
+        ]
+    }
+};
+
+// ========== عرض المنتجات ==========
+function showProductList(category) {
+    const product = products[category];
+    let productList = '';
+    product.items.forEach((item, index) => {
+        productList += `📌 ${item.name}\n💰 ${item.price}\n📝 ${item.desc}\n\n`;
+    });
+
     return {
         text: `
-<b>🛠 الدعم الفني</b>
+<b>${product.title}</b>
 
-📩 <b>تواصل مع المطور:</b> @SSSTlF
+${productList}
 
-📋 <b>للإبلاغ عن مشكلة أو استفسار</b>
-
-⏰ <b>أوقات الدعم:</b> 24/7
+<b>📌 للطلب تواصل مع المطور:</b> @SSSTlF
         `,
         buttons: Markup.inlineKeyboard([
-            [Markup.button.url('📩 تواصل مع المطور', 'https://t.me/SSSTlF')],
-            [Markup.button.callback('📋 الإبلاغ عن مشكلة', 'report_issue')],
-            [Markup.button.callback('❓ الأسئلة الشائعة', 'faq')],
-            [Markup.button.callback('🔙 العودة للقائمة', 'menu')]
-        ], { columns: 2 })
-    };
-}
-
-// ========== مستوى VIP ==========
-function vipMenu() {
-    return {
-        text: `
-<b>⭐ مستوى VIP</b>
-
-👑 <b>مستواك الحالي:</b> برونزي
-
-<b>📊 مميزات VIP:</b>
-✅ خصم 10% على جميع الخدمات
-✅ أولوية في الدعم الفني
-✅ خدمات حصرية
-
-<b>📌 لرفع مستواك:</b>
-🟡 برونزي → فضي (اشتراك 50$)
-🟡 فضي → ذهبي (اشتراك 100$)
-🟡 ذهبي → ماسي (اشتراك 200$)
-        `,
-        buttons: Markup.inlineKeyboard([
-            [Markup.button.callback('💳 ترقية VIP', 'upgrade_vip')],
-            [Markup.button.callback('📊 مميزات VIP', 'vip_features')],
-            [Markup.button.callback('🔙 العودة للقائمة', 'menu')]
-        ], { columns: 2 })
-    };
-}
-
-// ========== المساعد الذكي ==========
-function assistantMenu() {
-    return {
-        text: `
-<b>🧠 المساعد الذكي</b>
-
-🤖 <b>اسألني أي شيء!</b>
-
-📌 <b>أمثلة:</b>
-• ما هو أفضل تطبيق لمشروعي؟
-• كيف أبدأ في البرمجة؟
-• ما هي أفضل أدوات التصميم؟
-
-💬 <b>أنا هنا لمساعدتك 24/7</b>
-        `,
-        buttons: Markup.inlineKeyboard([
-            [Markup.button.callback('💬 اسأل المساعد', 'ask_assistant')],
-            [Markup.button.callback('📚 مواضيع شائعة', 'popular_topics')],
-            [Markup.button.callback('🔙 العودة للقائمة', 'menu')]
-        ], { columns: 2 })
-    };
-}
-
-// ========== دليل الاستخدام ==========
-function guideMenu() {
-    return {
-        text: `
-<b>📖 دليل استخدام البوت</b>
-
-📌 <b>خطوات التسوق:</b>
-1️⃣ اختر "إبدأ التسوق" من القائمة
-2️⃣ اختر الخدمة المناسبة
-3️⃣ ادفع عبر البطاقة أو الرصيد
-4️⃣ استلم الخدمة فوراً
-
-💰 <b>طرق الدفع:</b>
-• بطاقات ائتمان
-• تحويل بنكي
-• رصيد البوت
-
-🔒 <b>جميع العمليات آمنة ومشفرة</b>
-        `,
-        buttons: Markup.inlineKeyboard([
-            [Markup.button.callback('📹 فيديو شرح', 'video_guide')],
-            [Markup.button.callback('❓ أسئلة شائعة', 'faq_guide')],
-            [Markup.button.callback('🔙 العودة للقائمة', 'menu')]
+            [Markup.button.callback('🔙 العودة للخدمات', 'back_to_services')],
+            [Markup.button.callback('🏠 القائمة الرئيسية', 'menu')]
         ], { columns: 2 })
     };
 }
 
 // ========== الأزرار ==========
-bot.action('shop', async (ctx) => {
+// القائمة الرئيسية للخدمات
+bot.action('services_apps', async (ctx) => {
     const data = servicesMenu();
-    await ctx.answerCbQuery('🛒 جاري تحميل الخدمات...');
+    await ctx.answerCbQuery('📱 الخدمات');
     await ctx.editMessageText(data.text, {
         parse_mode: 'HTML',
         ...data.buttons,
@@ -216,59 +172,9 @@ bot.action('shop', async (ctx) => {
     });
 });
 
-bot.action('orders', async (ctx) => {
-    await ctx.answerCbQuery('📦 طلباتك');
-    await ctx.replyWithHTML(`
-<b>📦 طلباتي</b>
-
-📌 <b>ليس لديك طلبات حالياً</b>
-
-🛒 <b>ابدأ التسوق الآن!</b>
-    `);
-});
-
-bot.action('charge', async (ctx) => {
-    await ctx.answerCbQuery('💳 شحن الرصيد');
-    await ctx.replyWithHTML(`
-<b>💳 إشحن رصيدك</b>
-
-💰 <b>رصيدك الحالي:</b> $0.00
-
-📌 <b>اختر المبلغ:</b>
-• 10$ → 10$ 
-• 25$ → 25$ 
-• 50$ → 50$ + 5$ هدية
-• 100$ → 100$ + 15$ هدية
-
-💳 <b>طرق الدفع:</b>
-• بطاقة ائتمان
-• تحويل بنكي
-    `);
-});
-
-bot.action('cards', async (ctx) => {
-    await ctx.answerCbQuery('🎫 شحن بطاقات');
-    await ctx.replyWithHTML(`
-<b>🎫 شحن بطاقات</b>
-
-📌 <b>اشحن باستخدام بطاقات:</b>
-• بطاقات STC
-• بطاقات Mobily
-• بطاقات Zain
-• بطاقات Jawwy
-
-💰 <b>الرصيد:</b>
-• 10$ → 10$
-• 25$ → 25$
-• 50$ → 50$
-
-⚡ <b>شحن فوري وآمن</b>
-    `);
-});
-
-bot.action('settings', async (ctx) => {
-    const data = settingsMenu();
-    await ctx.answerCbQuery('⚙️ الإعدادات');
+bot.action('services_bots', async (ctx) => {
+    const data = servicesMenu();
+    await ctx.answerCbQuery('🤖 الخدمات');
     await ctx.editMessageText(data.text, {
         parse_mode: 'HTML',
         ...data.buttons,
@@ -276,9 +182,9 @@ bot.action('settings', async (ctx) => {
     });
 });
 
-bot.action('support', async (ctx) => {
-    const data = supportMenu();
-    await ctx.answerCbQuery('🛠 الدعم الفني');
+bot.action('services_websites', async (ctx) => {
+    const data = servicesMenu();
+    await ctx.answerCbQuery('🌐 الخدمات');
     await ctx.editMessageText(data.text, {
         parse_mode: 'HTML',
         ...data.buttons,
@@ -286,25 +192,9 @@ bot.action('support', async (ctx) => {
     });
 });
 
-bot.action('daily_offer', async (ctx) => {
-    await ctx.answerCbQuery('🎁 العرض اليومي');
-    await ctx.replyWithHTML(`
-<b>🎁 العرض اليومي</b>
-
-🔥 <b>خصم 50% على:</b>
-• تطبيقات الجوال
-• بوتات تليجرام
-
-💎 <b>السعر:</b> 50$ → 25$
-⏰ <b>العرض محدود!</b>
-
-📌 <b>للطلب:</b> @SSSTlF
-    `);
-});
-
-bot.action('vip', async (ctx) => {
-    const data = vipMenu();
-    await ctx.answerCbQuery('⭐ VIP');
+bot.action('services_databases', async (ctx) => {
+    const data = servicesMenu();
+    await ctx.answerCbQuery('💾 الخدمات');
     await ctx.editMessageText(data.text, {
         parse_mode: 'HTML',
         ...data.buttons,
@@ -312,9 +202,9 @@ bot.action('vip', async (ctx) => {
     });
 });
 
-bot.action('assistant', async (ctx) => {
-    const data = assistantMenu();
-    await ctx.answerCbQuery('🧠 المساعد الذكي');
+bot.action('services_security', async (ctx) => {
+    const data = servicesMenu();
+    await ctx.answerCbQuery('🛡️ الخدمات');
     await ctx.editMessageText(data.text, {
         parse_mode: 'HTML',
         ...data.buttons,
@@ -322,9 +212,43 @@ bot.action('assistant', async (ctx) => {
     });
 });
 
-bot.action('guide', async (ctx) => {
-    const data = guideMenu();
-    await ctx.answerCbQuery('📖 دليل الاستخدام');
+bot.action('services_design', async (ctx) => {
+    const data = servicesMenu();
+    await ctx.answerCbQuery('🎨 الخدمات');
+    await ctx.editMessageText(data.text, {
+        parse_mode: 'HTML',
+        ...data.buttons,
+        disable_web_page_preview: true
+    });
+});
+
+// أزرار المنتجات
+Object.keys(products).forEach(category => {
+    bot.action(`product_${category}`, async (ctx) => {
+        const data = showProductList(category);
+        await ctx.answerCbQuery(`📦 ${products[category].title}`);
+        await ctx.editMessageText(data.text, {
+            parse_mode: 'HTML',
+            ...data.buttons,
+            disable_web_page_preview: true
+        });
+    });
+});
+
+// أزرار التنقل
+bot.action('back_to_main', async (ctx) => {
+    const data = mainMenu();
+    await ctx.answerCbQuery('🔙 العودة للقائمة');
+    await ctx.editMessageText(data.text, {
+        parse_mode: 'HTML',
+        ...data.buttons,
+        disable_web_page_preview: true
+    });
+});
+
+bot.action('back_to_services', async (ctx) => {
+    const data = servicesMenu();
+    await ctx.answerCbQuery('🔙 العودة للخدمات');
     await ctx.editMessageText(data.text, {
         parse_mode: 'HTML',
         ...data.buttons,
@@ -340,11 +264,6 @@ bot.action('menu', async (ctx) => {
         ...data.buttons,
         disable_web_page_preview: true
     });
-});
-
-bot.action('channel', async (ctx) => {
-    await ctx.answerCbQuery('📢 القناة الرسمية');
-    await ctx.replyWithHTML('<b>📢 قناة البوت الرسمية:</b> @SSSTlF\n\n📦 تابع كل جديد');
 });
 
 // ========== الأوامر ==========
@@ -375,7 +294,7 @@ bot.launch({
     console.log('✅ Bot is running successfully!');
     console.log('🤖 Bot: @StoreRozbot');
     console.log('👑 المطور: @SSSTlF');
-    console.log('📦 TG - Store Roz | API');
+    console.log('📦 متجر روز للتطبيقات');
 }).catch((err) => {
     console.error('❌ Failed to start bot:', err.message);
 });
