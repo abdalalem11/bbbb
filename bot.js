@@ -9,427 +9,295 @@ const userId = "8505541555";
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// ========== صفحة الويب المخصصة ==========
 app.get('/', (req, res) => {
     res.send(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>TG - Store Roz | API</title>
-            <script src="https://telegram.org/js/telegram-web-app.js"></script>
-            <style>
-                * {
-                    margin: 0;
-                    padding: 0;
-                    box-sizing: border-box;
-                }
-                body {
-                    background: #0a0a1a;
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-                    padding: 20px;
-                    color: white;
-                    min-height: 100vh;
-                }
-                .container {
-                    max-width: 500px;
-                    margin: 0 auto;
-                }
-                .header {
-                    text-align: center;
-                    margin-bottom: 20px;
-                    padding: 20px;
-                    background: linear-gradient(135deg, #1a1a3e, #2d1b69);
-                    border-radius: 20px;
-                    border: 1px solid rgba(255,255,255,0.1);
-                }
-                .header h1 {
-                    font-size: 28px;
-                    font-weight: 800;
-                    background: linear-gradient(135deg, #ff6b6b, #ffd93d);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                }
-                .header .sub {
-                    color: #888;
-                    font-size: 14px;
-                    margin-top: 5px;
-                }
-                .stats {
-                    background: rgba(255,255,255,0.05);
-                    border-radius: 15px;
-                    padding: 15px;
-                    margin-bottom: 15px;
-                    text-align: center;
-                    border: 1px solid rgba(255,255,255,0.05);
-                }
-                .stats .number {
-                    font-size: 24px;
-                    font-weight: bold;
-                    color: #ffd93d;
-                }
-                .stats .label {
-                    color: #888;
-                    font-size: 14px;
-                }
-                .info-box {
-                    background: rgba(255,255,255,0.05);
-                    border-radius: 15px;
-                    padding: 15px;
-                    margin-bottom: 15px;
-                    border: 1px solid rgba(255,255,255,0.05);
-                }
-                .info-box .title {
-                    color: #ffd93d;
-                    font-weight: bold;
-                    margin-bottom: 5px;
-                }
-                .info-box .text {
-                    color: #ccc;
-                    font-size: 14px;
-                }
-                .info-box .highlight {
-                    color: #ff6b6b;
-                }
-                .balance {
-                    background: linear-gradient(135deg, #1a1a3e, #2d1b69);
-                    border-radius: 15px;
-                    padding: 15px;
-                    margin-bottom: 20px;
-                    text-align: center;
-                    border: 1px solid rgba(255,255,255,0.1);
-                }
-                .balance .amount {
-                    font-size: 28px;
-                    font-weight: bold;
-                    color: #ffd93d;
-                }
-                .balance .label {
-                    color: #888;
-                    font-size: 14px;
-                }
-                .grid {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 12px;
-                    margin-bottom: 20px;
-                }
-                .btn {
-                    padding: 16px 12px;
-                    border: none;
-                    border-radius: 14px;
-                    font-size: 14px;
-                    font-weight: 600;
-                    color: white;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    text-align: center;
-                    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-                    position: relative;
-                    overflow: hidden;
-                }
-                .btn:active {
-                    transform: scale(0.95);
-                }
-                .btn .emoji {
-                    display: block;
-                    font-size: 22px;
-                    margin-bottom: 4px;
-                }
-                .btn-gold { background: linear-gradient(135deg, #f7971e, #ffd200); }
-                .btn-purple { background: linear-gradient(135deg, #a18cd1, #fbc2eb); color: #1a1a3e; }
-                .btn-blue { background: linear-gradient(135deg, #4facfe, #00f2fe); }
-                .btn-green { background: linear-gradient(135deg, #43e97b, #38f9d7); color: #1a1a3e; }
-                .btn-red { background: linear-gradient(135deg, #f093fb, #f5576c); }
-                .btn-orange { background: linear-gradient(135deg, #fa709a, #fee140); color: #1a1a3e; }
-                .btn-pink { background: linear-gradient(135deg, #fbc2eb, #a6c1ee); color: #1a1a3e; }
-                .btn-teal { background: linear-gradient(135deg, #a8edea, #fed6e3); color: #1a1a3e; }
-                .btn-indigo { background: linear-gradient(135deg, #4facfe, #00f2fe); }
-                .btn-cyan { background: linear-gradient(135deg, #89f7fe, #66a6ff); }
-                .btn-amber { background: linear-gradient(135deg, #f7971e, #ffd200); }
-                .btn-deep-purple { background: linear-gradient(135deg, #a18cd1, #fbc2eb); color: #1a1a3e; }
-                .btn-full {
-                    grid-column: 1 / -1;
-                }
-                .footer {
-                    text-align: center;
-                    color: #666;
-                    font-size: 12px;
-                    padding: 10px;
-                    border-top: 1px solid rgba(255,255,255,0.05);
-                }
-                @media (max-width: 400px) {
-                    .grid {
-                        grid-template-columns: 1fr;
-                    }
-                    .btn-full {
-                        grid-column: 1;
-                    }
-                }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="header">
-                    <h1>🔥 TG - Store Roz | API</h1>
-                    <div class="sub">🤖 @StoreRozbot</div>
-                </div>
-
-                <div class="stats">
-                    <div class="number">1.75M</div>
-                    <div class="label">مستخدمًا شهريًا</div>
-                </div>
-
-                <div class="info-box">
-                    <div class="title">📌 الشراء الخدمات:</div>
-                    <div class="text">اختر "الخدمات" ...</div>
-                </div>
-
-                <div class="info-box">
-                    <div class="title">📌 لرؤية المنتجات حسب عملك المحلية</div>
-                    <div class="text">• <span class="highlight">الإعدادات</span></div>
-                    <div class="text">• <span class="highlight">تغيير العملة</span></div>
-                </div>
-
-                <div class="info-box">
-                    <div class="text">🔒 كل العمليات تتم تلقائياً وبشكل آمن وفوراً</div>
-                </div>
-
-                <div class="balance">
-                    <div class="label">💰 رصيدك</div>
-                    <div class="amount">$0.0000 | $0.00</div>
-                </div>
-
-                <div class="grid">
-                    <button class="btn btn-gold" onclick="sendData('shop')">
-                        <span class="emoji">🛒</span> إبدأ التسوق
-                    </button>
-                    <button class="btn btn-purple" onclick="sendData('orders')">
-                        <span class="emoji">📦</span> طلباتي
-                    </button>
-                    <button class="btn btn-blue" onclick="sendData('charge')">
-                        <span class="emoji">💳</span> إشحن رصيدك
-                    </button>
-                    <button class="btn btn-green" onclick="sendData('cards')">
-                        <span class="emoji">🎫</span> شحن بطاقات
-                    </button>
-                    <button class="btn btn-red" onclick="sendData('channel')">
-                        <span class="emoji">📢</span> قناة البوت
-                    </button>
-                    <button class="btn btn-orange" onclick="sendData('settings')">
-                        <span class="emoji">⚙️</span> الإعدادات
-                    </button>
-                    <button class="btn btn-pink" onclick="sendData('support')">
-                        <span class="emoji">🛠</span> الدعم الفني
-                    </button>
-                    <button class="btn btn-teal" onclick="sendData('daily_offer')">
-                        <span class="emoji">🎁</span> العرض اليومي
-                    </button>
-                    <button class="btn btn-indigo" onclick="sendData('vip')">
-                        <span class="emoji">⭐</span> مستوى VIP
-                    </button>
-                    <button class="btn btn-cyan" onclick="sendData('assistant')">
-                        <span class="emoji">🧠</span> المساعد الذكي
-                    </button>
-                    <button class="btn btn-amber btn-full" onclick="sendData('guide')">
-                        <span class="emoji">📖</span> دليل الاستخدام
-                    </button>
-                </div>
-
-                <div class="footer">
-                    🔒 جميع العمليات آمنة ومشفرة
-                </div>
-            </div>
-
-            <script>
-                function sendData(action) {
-                    if (window.Telegram && Telegram.WebApp) {
-                        Telegram.WebApp.sendData(JSON.stringify({ action: action }));
-                        Telegram.WebApp.close();
-                    } else {
-                        alert('يفضل فتح البوت من تطبيق تيليجرام');
-                    }
-                }
-            </script>
-        </body>
-        </html>
+        <h1 style="color:blue;text-align:center;">💰 TON Price Bot</h1>
+        <p style="text-align:center;">🤖 @tonpricesbot</p>
+        <p style="text-align:center;">👑 المطور: @SSSTlF</p>
     `);
 });
 
-// ========== معالجة Web App ==========
-bot.on('web_app_data', async (ctx) => {
-    try {
-        const data = JSON.parse(ctx.message.web_app_data.data);
-        const action = data.action;
-        
-        const responses = {
-            shop: `
-<b>🛒 الخدمات المتوفرة</b>
+const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`✅ Web server running on port ${PORT}`);
+});
 
-📌 <b>جميع الخدمات متوفرة</b>
-💰 <b>للطلب تواصل مع المطور:</b> @SSSTlF
+// ========== سعر TON ==========
+let tonPrice = {
+    usd: '5.42',
+    btc: '0.000085',
+    change: '+2.3%'
+};
 
-🔒 <b>جميع الخدمات آمنة</b>
-            `,
-            orders: `
-<b>📦 طلباتي</b>
+// تحديث السعر كل 5 دقائق (محاكاة)
+setInterval(() => {
+    const randomChange = (Math.random() * 4 - 2).toFixed(1);
+    const basePrice = 5.42 + (Math.random() * 0.5 - 0.25);
+    tonPrice = {
+        usd: basePrice.toFixed(2),
+        btc: (basePrice * 0.0000157).toFixed(6),
+        change: randomChange > 0 ? `+${randomChange}%` : `${randomChange}%`
+    };
+    console.log(`💰 تحديث السعر: $${tonPrice.usd} | ${tonPrice.change}`);
+}, 300000); // 5 دقائق
 
-📌 <b>ليس لديك طلبات حالياً</b>
+// ========== القائمة الرئيسية ==========
+function mainMenu() {
+    return {
+        text: `
+<b>💰 TON Price</b>
 
-🛒 <b>ابدأ التسوق الآن!</b>
-            `,
-            charge: `
-<b>💳 إشحن رصيدك</b>
+👥 <b>57,836</b> مشترك
 
-💰 <b>رصيدك الحالي:</b> $0.00
+📊 <b>سعر TON الحالي:</b>
+💵 <b>USD:</b> <code>$${tonPrice.usd}</code>
+₿ <b>BTC:</b> <code>${tonPrice.btc}</code>
+📈 <b>التغير:</b> <code>${tonPrice.change}</code>
 
-📌 <b>اختر المبلغ:</b>
-• 10$ → 10$ 
-• 25$ → 25$ 
-• 50$ → 50$ + 5$ هدية
-• 100$ → 100$ + 15$ هدية
+🔄 <b>يتم تحديث السعر كل 5 دقائق</b>
 
-💳 <b>طرق الدفع:</b>
-• بطاقة ائتمان
-• تحويل بنكي
-            `,
-            cards: `
-<b>🎫 شحن بطاقات</b>
+📌 <b>اختر من القائمة:</b>
+        `,
+        buttons: Markup.inlineKeyboard([
+            [Markup.button.callback('🔄 تحديث السعر', 'update_price')],
+            [Markup.button.callback('📊 عرض السعر', 'show_price')],
+            [Markup.button.callback('📤 مشاركة السعر', 'share_price')],
+            [Markup.button.callback('📈 الرسم البياني', 'chart')],
+            [Markup.button.callback('🔔 تنبيه السعر', 'alert')],
+            [Markup.button.callback('📢 القناة الرسمية', 'channel')],
+            [Markup.button.callback('🛠 الدعم الفني', 'support')]
+        ], { columns: 2 })
+    };
+}
 
-📌 <b>اشحن باستخدام بطاقات:</b>
-• بطاقات STC
-• بطاقات Mobily
-• بطاقات Zain
+// ========== الأزرار ==========
+bot.action('update_price', async (ctx) => {
+    // تحديث السعر يدوياً
+    const randomChange = (Math.random() * 4 - 2).toFixed(1);
+    const basePrice = 5.42 + (Math.random() * 0.5 - 0.25);
+    tonPrice = {
+        usd: basePrice.toFixed(2),
+        btc: (basePrice * 0.0000157).toFixed(6),
+        change: randomChange > 0 ? `+${randomChange}%` : `${randomChange}%`
+    };
+    
+    await ctx.answerCbQuery('🔄 تم تحديث السعر');
+    await ctx.replyWithHTML(`
+<b>✅ تم تحديث السعر</b>
 
-💰 <b>الرصيد:</b>
-• 10$ → 10$
-• 25$ → 25$
-• 50$ → 50$
+💵 <b>USD:</b> <code>$${tonPrice.usd}</code>
+₿ <b>BTC:</b> <code>${tonPrice.btc}</code>
+📈 <b>التغير:</b> <code>${tonPrice.change}</code>
 
-⚡ <b>شحن فوري وآمن</b>
-            `,
-            channel: '<b>📢 قناة البوت الرسمية:</b> @SSSTlF',
-            settings: `
-<b>⚙️ الإعدادات</b>
+🔄 <b>آخر تحديث:</b> <code>${new Date().toLocaleTimeString()}</code>
+    `, {
+        reply_markup: {
+            inline_keyboard: [
+                [{ text: '🔙 العودة للقائمة', callback_data: 'menu' }]
+            ]
+        }
+    });
+});
 
-🔹 <b>العملة:</b> USD ($)
-🔹 <b>اللغة:</b> العربية
-🔹 <b>الإشعارات:</b> مفعلة
+bot.action('show_price', async (ctx) => {
+    await ctx.answerCbQuery('📊 عرض السعر');
+    await ctx.replyWithHTML(`
+<b>📊 سعر TON الحالي</b>
 
-📌 <b>اختر ما تريد تعديله:</b>
-            `,
-            support: `
+💵 <b>USD:</b> <code>$${tonPrice.usd}</code>
+₿ <b>BTC:</b> <code>${tonPrice.btc}</code>
+📈 <b>التغير:</b> <code>${tonPrice.change}</code>
+
+🔄 <b>آخر تحديث:</b> <code>${new Date().toLocaleTimeString()}</code>
+⏱ <b>التحديث القادم:</b> بعد 5 دقائق
+
+📌 <b>شارك السعر مع أصدقائك!</b>
+    `, {
+        reply_markup: {
+            inline_keyboard: [
+                [Markup.button.callback('📤 مشاركة السعر', 'share_price')],
+                [Markup.button.callback('🔙 العودة للقائمة', 'menu')]
+            ]
+        }
+    });
+});
+
+bot.action('share_price', async (ctx) => {
+    await ctx.answerCbQuery('📤 جاري التجهيز للمشاركة');
+    await ctx.replyWithHTML(`
+<b>📤 شارك سعر TON</b>
+
+💵 <b>سعر TON الحالي:</b> <code>$${tonPrice.usd}</code>
+📈 <b>التغير:</b> <code>${tonPrice.change}</code>
+
+📌 <b>انسخ النص وأرسله لأصدقائك:</b>
+<code>💰 سعر TON الآن: $${tonPrice.usd} (${tonPrice.change})
+🔄 يتم التحديث كل 5 دقائق
+🤖 @tonpricesbot</code>
+
+🔗 <b>رابط البوت:</b> https://t.me/tonpricesbot
+    `, {
+        reply_markup: {
+            inline_keyboard: [
+                [Markup.button.callback('🔙 العودة للقائمة', 'menu')]
+            ]
+        }
+    });
+});
+
+bot.action('chart', async (ctx) => {
+    await ctx.answerCbQuery('📈 الرسم البياني');
+    await ctx.replyWithHTML(`
+<b>📈 الرسم البياني لسعر TON</b>
+
+📊 <b>البيانات المتوفرة:</b>
+• السعر الحالي: <code>$${tonPrice.usd}</code>
+• التغير: <code>${tonPrice.change}</code>
+• آخر تحديث: <code>${new Date().toLocaleTimeString()}</code>
+
+📌 <b>للحصول على رسم بياني تفصيلي:</b>
+🔗 https://www.coingecko.com/en/coins/toncoin
+
+📊 <b>بيانات السوق:</b>
+• أعلى سعر اليوم: $5.68
+• أدنى سعر اليوم: $5.12
+• الحجم: 24.5M
+    `, {
+        reply_markup: {
+            inline_keyboard: [
+                [Markup.button.callback('🔄 تحديث السعر', 'update_price')],
+                [Markup.button.callback('🔙 العودة للقائمة', 'menu')]
+            ]
+        }
+    });
+});
+
+bot.action('alert', async (ctx) => {
+    await ctx.answerCbQuery('🔔 تنبيه السعر');
+    await ctx.replyWithHTML(`
+<b>🔔 تنبيه السعر</b>
+
+📌 <b>قم بتعيين تنبيه للسعر:</b>
+
+1️⃣ <b>تنبيه ارتفاع:</b>
+عندما يصل السعر إلى $6.00
+
+2️⃣ <b>تنبيه انخفاض:</b>
+عندما يصل السعر إلى $5.00
+
+📌 <b>لتفعيل التنبيه:</b>
+أرسل الأمر التالي:
+<code>/alert 6.00</code> (لارتفاع)
+<code>/alert 5.00</code> (لانخفاض)
+
+🔔 <b>التنبيهات الحالية:</b>
+• لا توجد تنبيهات نشطة
+    `, {
+        reply_markup: {
+            inline_keyboard: [
+                [Markup.button.callback('🔙 العودة للقائمة', 'menu')]
+            ]
+        }
+    });
+});
+
+bot.action('channel', async (ctx) => {
+    await ctx.answerCbQuery('📢 القناة الرسمية');
+    await ctx.replyWithHTML(`
+<b>📢 قناة TON Price الرسمية</b>
+
+👥 <b>المشتركين:</b> 57,836
+
+📊 <b>مميزات القناة:</b>
+• تحديث السعر كل 5 دقائق
+• أخبار TON الحصرية
+• تحليلات السوق
+
+🔗 <b>رابط القناة:</b>
+https://t.me/tonprices
+
+🤖 <b>بوت السعر:</b>
+@tonpricesbot
+    `, {
+        reply_markup: {
+            inline_keyboard: [
+                [Markup.button.url('📢 اشترك في القناة', 'https://t.me/tonprices')],
+                [Markup.button.callback('🔙 العودة للقائمة', 'menu')]
+            ]
+        }
+    });
+});
+
+bot.action('support', async (ctx) => {
+    await ctx.answerCbQuery('🛠 الدعم الفني');
+    await ctx.replyWithHTML(`
 <b>🛠 الدعم الفني</b>
 
 📩 <b>تواصل مع المطور:</b> @SSSTlF
 
+📋 <b>للإبلاغ عن مشكلة أو استفسار</b>
+
 ⏰ <b>أوقات الدعم:</b> 24/7
-            `,
-            daily_offer: `
-<b>🎁 العرض اليومي</b>
 
-🔥 <b>خصم 50% على جميع الخدمات</b>
-
-⏰ <b>العرض محدود!</b>
-
-📌 <b>للطلب:</b> @SSSTlF
-            `,
-            vip: `
-<b>⭐ مستوى VIP</b>
-
-👑 <b>مستواك الحالي:</b> برونزي
-
-<b>📊 مميزات VIP:</b>
-✅ خصم 10% على جميع الخدمات
-✅ أولوية في الدعم الفني
-            `,
-            assistant: `
-<b>🧠 المساعد الذكي</b>
-
-🤖 <b>اسألني أي شيء!</b>
-
-💬 <b>أنا هنا لمساعدتك 24/7</b>
-            `,
-            guide: `
-<b>📖 دليل استخدام البوت</b>
-
-📌 <b>خطوات التسوق:</b>
-1️⃣ اختر "إبدأ التسوق"
-2️⃣ اختر الخدمة المناسبة
-3️⃣ ادفع واستلم الخدمة
-
-🔒 <b>جميع العمليات آمنة</b>
-            `
-        };
-
-        await ctx.replyWithHTML(responses[action] || '❌ حدث خطأ، حاول مرة أخرى');
-
-    } catch (error) {
-        await ctx.reply('❌ حدث خطأ، حاول مرة أخرى');
-    }
+📌 <b>الأسئلة الشائعة:</b>
+• كيف يتم تحديث السعر؟ كل 5 دقائق
+• هل البوت مجاني؟ نعم
+• كيف أشارك السعر؟ اضغط على زر المشاركة
+    `, {
+        reply_markup: {
+            inline_keyboard: [
+                [Markup.button.callback('🔙 العودة للقائمة', 'menu')]
+            ]
+        }
+    });
 });
 
-// ========== القائمة الرئيسية ==========
-function mainMenu() {
-    // استخدام الرابط الصحيح من Render
-    const webAppUrl = 'https://bbbb-3e1x.onrender.com';
-    
-    return {
-        text: `
-<b>🔥 TG - Store Roz | API</b>
-
-👥 <b>1.75M</b> مستخدمًا شهريًا
-
-<b>📌 الشراء الخدمات:</b>
-اختر "الخدمات" ...
-
-<b>📌 لرؤية المنتجات حسب عملك المحلية</b>
-• الإعدادات
-• تغيير العملة
-
-🔒 <b>كل العمليات تتم تلقائياً وبشكل آمن وفوراً</b>
-
-<b>💰 رصيدك:</b> <code>$0.0000 | $0.00</code>
-
-<b>📌 اختر من القائمة:</b>
-        `,
-        buttons: Markup.inlineKeyboard([
-            [Markup.button.webApp('🔥 افتح المتجر', webAppUrl)]
-        ])
-    };
-}
+bot.action('menu', async (ctx) => {
+    const data = mainMenu();
+    await ctx.answerCbQuery('🏠 القائمة الرئيسية');
+    await ctx.editMessageText(data.text, {
+        parse_mode: 'HTML',
+        ...data.buttons,
+        disable_web_page_preview: true
+    });
+});
 
 // ========== الأوامر ==========
 bot.start(async (ctx) => {
     const data = mainMenu();
     await ctx.replyWithHTML(`
-<b>🔥 مرحباً بك في متجر روز للتطبيقات</b>
+<b>💰 مرحباً بك في بوت TON Price</b>
 
-👤 <b>المستخدم:</b> ${ctx.from.first_name}
-💰 <b>رصيدك:</b> $0.00
+📊 <b>سعر TON الحالي:</b> <code>$${tonPrice.usd}</code>
+🔄 <b>يتم التحديث كل 5 دقائق</b>
+
+📌 <b>اختر من القائمة:</b>
     `);
-    await ctx.replyWithHTML(data.text, data.buttons);
+    await ctx.replyWithHTML(data.text, { ...data.buttons, disable_web_page_preview: true });
 });
 
 bot.command('menu', async (ctx) => {
     const data = mainMenu();
-    await ctx.replyWithHTML(data.text, data.buttons);
+    await ctx.replyWithHTML(data.text, { ...data.buttons, disable_web_page_preview: true });
+});
+
+bot.command('price', async (ctx) => {
+    await ctx.replyWithHTML(`
+💰 <b>سعر TON</b>
+💵 <b>USD:</b> <code>$${tonPrice.usd}</code>
+📈 <b>التغير:</b> <code>${tonPrice.change}</code>
+    `);
 });
 
 // ========== تشغيل البوت ==========
-const server = app.listen(PORT, '0.0.0.0', () => {
-    console.log(`✅ Web server running on port ${PORT}`);
-});
-
 console.log('🚀 جاري تشغيل البوت...');
 
 bot.launch({
     dropPendingUpdates: true
 }).then(() => {
     console.log('✅ Bot is running successfully!');
-    console.log('🤖 Bot: @StoreRozbot');
+    console.log('🤖 Bot: @tonpricesbot');
     console.log('👑 المطور: @SSSTlF');
+    console.log(`💰 سعر TON: $${tonPrice.usd}`);
 }).catch((err) => {
     console.error('❌ Failed to start bot:', err.message);
 });
