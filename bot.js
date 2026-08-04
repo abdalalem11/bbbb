@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 10000;
 
 app.get('/', (req, res) => {
     res.send(`
-        <h1 style="color:red;text-align:center;">🔥 متجر روز للتطبيقات</h1>
+        <h1 style="color:red;text-align:center;">🔥 TG - Store Roz | API</h1>
         <p style="text-align:center;">🤖 @StoreRozbot</p>
         <p style="text-align:center;color:red;">👑 المطور: @SSSTlF</p>
     `);
@@ -21,30 +21,24 @@ const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`✅ Web server running on port ${PORT}`);
 });
 
-// ========== ألوان فاخرة للأزرار ==========
-const buttonColors = {
-    gold: '#FFD700',
-    purple: '#9C27B0',
-    blue: '#1A73E8',
-    green: '#34A853',
-    red: '#EA4335',
-    orange: '#FF6D00',
-    pink: '#E91E63',
-    teal: '#00897B',
-    indigo: '#3F51B5',
-    cyan: '#00BCD4',
-    amber: '#FFC107',
-    deepPurple: '#673AB7'
-};
-
 // ========== القائمة الرئيسية ==========
 function mainMenu() {
     return {
         text: `
-<b>🔥 متجر روز للتطبيقات</b>
+<b>🔥 TG - Store Roz | API</b>
 
-👤 <b>المستخدم:</b> <code>${userId}</code>
-💰 <b>رصيدك:</b> <code>$0.0000</code>
+👥 <b>1.75M</b> مستخدمًا شهريًا
+
+<b>📌 الشراء الخدمات:</b>
+اختر "الخدمات" ...
+
+<b>📌 لرؤية المنتجات حسب عملك المحلية</b>
+• الإعدادات
+• تغيير العملة
+
+🔒 <b>كل العمليات تتم تلقائياً وبشكل آمن وفوراً</b>
+
+<b>💰 رصيدك:</b> <code>$0.0000 | $0.00</code>
 
 <b>📌 اختر من القائمة:</b>
         `,
