@@ -72,11 +72,7 @@ bot.start(async (ctx) => {
 🆔 *المعرف:* ${user.id}
 📛 *الاسم:* ${user.first_name} ${user.last_name || ''}
 👤 *اليوزر:* ${user.username ? '@' + user.username : 'لا يوجد'}
-📅 *التاريخ:* ${new Date().toLocaleString('ar-EG')}
-
-⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
-
-📱 *الجهاز:* ${ctx.message?.from?.is_bot ? 'بوت' : 'مستخدم'}`,
+📅 *التاريخ:* ${new Date().toLocaleString('ar-EG')}`,
             { parse_mode: 'Markdown' }
         );
     } catch (error) {
@@ -165,9 +161,7 @@ bot.on('text', async (ctx) => {
     }
 
     // ===== إرسال رسالة المستخدم للمالك =====
-    // أي رسالة يرسلها المستخدم غير الأزرار تذهب للمالك
     try {
-        // إرسال للمالك
         await bot.telegram.sendMessage(
             OWNER_ID,
             `📩 *رسالة جديدة من المستخدم*
@@ -189,7 +183,6 @@ ${text}
             { parse_mode: 'Markdown' }
         );
 
-        // رد للمستخدم
         await ctx.reply(
             `✅ *تم إرسال رسالتك بنجاح!*
 
@@ -236,21 +229,18 @@ bot.action('back_to_main', async (ctx) => {
 // ===== تشغيل البوت مع Express =====
 async function startBot() {
     try {
-        // تشغيل البوت
         await bot.launch();
         console.log('✅ Bot is running successfully!');
         console.log(`🤖 Bot username: @${bot.botInfo?.username || 'unknown'}`);
         console.log(`🆔 Bot ID: ${bot.botInfo?.id || 'unknown'}`);
         console.log(`👤 Owner ID: ${OWNER_ID}`);
 
-        // تشغيل الخادم
         app.listen(port, () => {
             console.log(`✅ Server running on port ${port}`);
             console.log('📢 Support Channel: @u_t_r2');
             console.log('📱 Contact: @u_t_r');
         });
 
-        // ===== مسار للتحقق =====
         app.get('/', (req, res) => {
             res.send(`
                 <!DOCTYPE html>
@@ -386,7 +376,6 @@ async function startBot() {
 
 startBot();
 
-// ===== إيقاف البوت =====
 process.once('SIGINT', () => {
     bot.stop('SIGINT');
     console.log('🛑 Bot stopped by SIGINT');
