@@ -1,7 +1,7 @@
 from config import Config
 import asyncio
 from pyrogram import Client, filters, idle
-from pyrogram.types import ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.types import ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton
 from pyrogram.errors import SessionPasswordNeeded, PhoneCodeExpired
 from pyrogram.errors.exceptions.bad_request_400 import PasswordHashInvalid, PhoneCodeInvalid
 from pyrogram.errors.exceptions.not_acceptable_406 import PhoneNumberInvalid
@@ -18,14 +18,10 @@ from telethon.errors import (
 from pyromod import listen
 from pyrogram import __version__ as v
 
-# حقوق احمد @H1HHIH - @ELHYBA
-# تطوير مودي الهيبه @ELHYBA - @SOURCE_ZE
-
 api_hash = Config.API_HASH
 api_id = Config.APP_ID
 token = Config.TG_BOT_TOKEN
 
-# إنشاء البوت
 app = Client(
     name="session_bot",
     api_id=api_id,
@@ -34,7 +30,6 @@ app = Client(
     in_memory=True
 )
 
-# أزرار الاستخراج
 START_KEYBOARD = ReplyKeyboardMarkup(
     [
         [KeyboardButton("📱 بايروجرام"), KeyboardButton("📱 تيليثون")],
@@ -67,7 +62,6 @@ async def start_msg(app, message):
 
 @app.on_message(filters.text & filters.private)
 async def generator_and_about(app, m):
-    # معلومات عن البوت
     if m.text == "ℹ️ معلومات عن البوت":
         text = f"""
 **🤖 معلومات عن البوت**
@@ -83,7 +77,6 @@ async def generator_and_about(app, m):
         await m.reply(text, quote=True)
         return
 
-    # استخراج جلسة بايروجرام
     if m.text == "📱 بايروجرام":
         rep = await m.reply(
             "⏳ **جاري التجهيز...**",
@@ -91,7 +84,6 @@ async def generator_and_about(app, m):
             quote=True
         )
         
-        # إنشاء عميل مؤقت
         client = Client(
             f"pyro_{m.from_user.id}",
             api_id,
@@ -104,7 +96,6 @@ async def generator_and_about(app, m):
             await client.connect()
             await rep.delete()
             
-            # طلب رقم الهاتف
             phone_ask = await m.chat.ask(
                 "📱 **أرسل رقم هاتفك مع رمز الدولة**\nمثال: +963995×××××",
                 reply_to_message_id=m.id,
@@ -112,7 +103,6 @@ async def generator_and_about(app, m):
             )
             phone = phone_ask.text.strip()
             
-            # إرسال الكود
             try:
                 send_code = await client.send_code(phone)
             except PhoneNumberInvalid:
@@ -130,14 +120,12 @@ async def generator_and_about(app, m):
                 await client.disconnect()
                 return
             
-            # طلب الكود
             code_ask = await m.chat.ask(
                 "🔑 **أرسل الكود الذي وصل إليك**\nإذا كان الكود 12345 أرسله كالتالي: 1 2 3 4 5",
                 filters=filters.text
             )
             code = code_ask.text.replace(" ", "")
             
-            # تسجيل الدخول
             try:
                 await client.sign_in(phone, send_code.phone_code_hash, code)
             except SessionPasswordNeeded:
@@ -163,12 +151,10 @@ async def generator_and_about(app, m):
                 await client.disconnect()
                 return
             
-            # استخراج الجلسة
             rep = await m.reply("⏳ **جاري استخراج الجلسة...**", quote=True)
             get = await client.get_me()
             string_session = await client.export_session_string()
             
-            # إرسال الجلسة
             await client.send_message(
                 'me',
                 f"**🔑 جلسة بايروجرام**\n\n"
@@ -203,7 +189,6 @@ async def generator_and_about(app, m):
                 pass
         return
 
-    # استخراج جلسة تيليثون
     if m.text == "📱 تيليثون":
         rep = await m.reply(
             "⏳ **جاري التجهيز...**",
@@ -211,14 +196,12 @@ async def generator_and_about(app, m):
             quote=True
         )
         
-        # إنشاء عميل تيليثون مؤقت
         client = TelegramClient(StringSession(), api_id, api_hash)
         
         try:
             await client.connect()
             await rep.delete()
             
-            # طلب رقم الهاتف
             phone_ask = await m.chat.ask(
                 "📱 **أرسل رقم هاتفك مع رمز الدولة**\nمثال: +963995×××××",
                 reply_to_message_id=m.id,
@@ -226,7 +209,6 @@ async def generator_and_about(app, m):
             )
             phone = phone_ask.text.strip()
             
-            # إرسال الكود
             try:
                 await client.send_code_request(phone)
             except PhoneNumberInvalidError:
@@ -244,14 +226,12 @@ async def generator_and_about(app, m):
                 await client.disconnect()
                 return
             
-            # طلب الكود
             code_ask = await m.chat.ask(
                 "🔑 **أرسل الكود الذي وصل إليك**\nإذا كان الكود 12345 أرسله كالتالي: 1 2 3 4 5",
                 filters=filters.text
             )
             code = code_ask.text.replace(" ", "")
             
-            # تسجيل الدخول
             try:
                 await client.sign_in(phone, code)
             except SessionPasswordNeededError:
@@ -277,12 +257,10 @@ async def generator_and_about(app, m):
                 await client.disconnect()
                 return
             
-            # استخراج الجلسة
             rep = await m.reply("⏳ **جاري استخراج الجلسة...**", quote=True)
             get = await client.get_me()
             string_session = client.session.save()
             
-            # إرسال الجلسة
             await client.send_message(
                 'me',
                 f"**🔑 جلسة تيليثون**\n\n"
@@ -317,7 +295,6 @@ async def generator_and_about(app, m):
                 pass
         return
 
-# تشغيل البوت
 print("🚀 جاري تشغيل بوت استخراج الجلسات...")
 app.start()
 print("✅ تم تشغيل البوت بنجاح @ELHYBA")
