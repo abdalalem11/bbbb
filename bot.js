@@ -1,302 +1,189 @@
 from config import Config
 import asyncio
 from pyrogram import Client, filters, idle
-from pyrogram.types import ReplyKeyboardMarkup, ReplyKeyboardRemove, KeyboardButton
-from pyrogram.errors import SessionPasswordNeeded, PhoneCodeExpired
-from pyrogram.errors.exceptions.bad_request_400 import PasswordHashInvalid, PhoneCodeInvalid
-from pyrogram.errors.exceptions.not_acceptable_406 import PhoneNumberInvalid
-from telethon import TelegramClient
-from telethon import __version__ as v2
-from telethon.sessions import StringSession
-from telethon.errors import (
-    PhoneNumberInvalidError,
-    PhoneCodeInvalidError,
-    PhoneCodeExpiredError,
-    SessionPasswordNeededError,
-    PasswordHashInvalidError
+from pyrogram.types import (
+    ReplyKeyboardMarkup, 
+    ReplyKeyboardRemove, 
+    KeyboardButton,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton
 )
-from pyromod import listen
 from pyrogram import __version__ as v
+from telethon import __version__ as v2
 
+# التوكين الجديد
 api_hash = Config.API_HASH
 api_id = Config.APP_ID
-token = Config.TG_BOT_TOKEN
+token = "8909739497:AAHBUGLmeligI-TX3kZKlQ_8nTZK61TKVtI"
 
 app = Client(
-    name="session_bot",
+    name="contact_bot",
     api_id=api_id,
     api_hash=api_hash,
     bot_token=token,
     in_memory=True
 )
 
-START_KEYBOARD = ReplyKeyboardMarkup(
+# Main Menu Keyboard
+MAIN_KEYBOARD = ReplyKeyboardMarkup(
     [
-        [KeyboardButton("📱 بايروجرام"), KeyboardButton("📱 تيليثون")],
+        [KeyboardButton("👨‍💻 تواصل مع المطور")],
         [KeyboardButton("ℹ️ معلومات عن البوت")]
     ],
     resize_keyboard=True,
-    placeholder='اختر نوع الجلسة'
+    placeholder='اختر الخدمة المطلوبة'
+)
+
+# Developer Contact Keyboard
+DEV_KEYBOARD = InlineKeyboardMarkup(
+    [
+        [InlineKeyboardButton("👨‍💻 تواصل مع المطور", url="https://t.me/u_t_r")],
+        [InlineKeyboardButton("📢 قناة الدعم", url="https://t.me/u_t_r2")],
+        [InlineKeyboardButton("💬 مجموعة الدعم", url="https://t.me/u_t_r")],
+        [InlineKeyboardButton("🔙 رجوع", callback_data="back_to_main")]
+    ]
 )
 
 @app.on_message(filters.command("start") & filters.private)
 async def start_msg(app, message):
     await message.reply(
         f"""
-**🌟 مرحبًا بك عزيزي {message.from_user.mention}**
+✨ **مرحباً بك عزيزي {message.from_user.mention}** ✨
 
-📌 **بوت استخراج جلسات Pyrogram & Telethon**
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
 
-⚡️ اختر نوع الجلسة التي تريد استخراجها من الأزرار أدناه.
+🤖 **بوت التواصل مع المطور**
 
-⚠️ **تنبيه هام:**
-• لا تشارك الكود مع أي شخص
-• الكود يسمح بالتحكم بحسابك بالكامل
-• تأكد من أنك في مكان آمن
+📌 **خدمات البوت:**
+• 📱 التواصل المباشر مع المطور
+• 💡 الحصول على الدعم الفني
+• 🛠️ طلب بوتات مخصصة
+• 📊 استشارات تقنية
 
-👨‍💻 **المطور:** @ELHYBA
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+💫 **كيفية الاستخدام:**
+1️⃣ اضغط على زر "تواصل مع المطور"
+2️⃣ اختر طريقة التواصل المناسبة
+3️⃣ اكتب رسالتك وسيتم الرد عليك
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+⚡️ **متوفر 24/7** 
+📌 **وقت الرد:** خلال 24 ساعة
 """,
-        reply_markup=START_KEYBOARD,
+        reply_markup=MAIN_KEYBOARD,
         quote=True
     )
 
 @app.on_message(filters.text & filters.private)
-async def generator_and_about(app, m):
+async def handle_buttons(app, m):
+    # About Section
     if m.text == "ℹ️ معلومات عن البوت":
         text = f"""
-**🤖 معلومات عن البوت**
+📊 **معلومات عن البوت**
 
-🐍 **لغة البرمجة:** بايثون
-🔥 **إصدار بايروجرام:** {v}
-🌱 **إصدار تيليثون:** {v2}
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
 
-📌 **الوظيفة:** استخراج جلسات للمكتبتين
+🤖 **الاسم:** بوت التواصل مع المطور
+🐍 **لغة البرمجة:** Python 3.11
+🔥 **بايروجرام:** v{v}
+🌱 **تيليثون:** v{v2}
+⚡️ **الحالة:** نشط 🟢
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+📌 **الوظائف:**
+• التواصل المباشر مع المطور
+• الدعم الفني والاستشارات
+• طلب تصميم بوتات مخصصة
+• حل المشاكل التقنية
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
 
 👨‍💻 **المطور:** @ELHYBA
+📢 **قناة الدعم:** @u_t_r2
+📱 **للتواصل:** @u_t_r
 """
-        await m.reply(text, quote=True)
+        await m.reply(text, quote=True, reply_markup=MAIN_KEYBOARD)
         return
 
-    if m.text == "📱 بايروجرام":
-        rep = await m.reply(
-            "⏳ **جاري التجهيز...**",
-            reply_markup=ReplyKeyboardRemove(),
-            quote=True
-        )
-        
-        client = Client(
-            f"pyro_{m.from_user.id}",
-            api_id,
-            api_hash,
-            device_model="Pyrogram",
-            in_memory=True
-        )
-        
-        try:
-            await client.connect()
-            await rep.delete()
-            
-            phone_ask = await m.chat.ask(
-                "📱 **أرسل رقم هاتفك مع رمز الدولة**\nمثال: +963995×××××",
-                reply_to_message_id=m.id,
-                filters=filters.text
-            )
-            phone = phone_ask.text.strip()
-            
-            try:
-                send_code = await client.send_code(phone)
-            except PhoneNumberInvalid:
-                await phone_ask.reply(
-                    "❌ **رقم الهاتف غير صحيح!**\nيرجى إعادة المحاولة.\n/start",
-                    quote=True
-                )
-                await client.disconnect()
-                return
-            except Exception as e:
-                await phone_ask.reply(
-                    f"❌ **حدث خطأ:** {str(e)[:100]}\nيرجى المحاولة لاحقًا.\n/start",
-                    quote=True
-                )
-                await client.disconnect()
-                return
-            
-            code_ask = await m.chat.ask(
-                "🔑 **أرسل الكود الذي وصل إليك**\nإذا كان الكود 12345 أرسله كالتالي: 1 2 3 4 5",
-                filters=filters.text
-            )
-            code = code_ask.text.replace(" ", "")
-            
-            try:
-                await client.sign_in(phone, send_code.phone_code_hash, code)
-            except SessionPasswordNeeded:
-                password_ask = await m.chat.ask(
-                    "🔐 **تفعيل التحقق بخطوتين**\nأرسل كلمة مرور التحقق بخطوتين:",
-                    filters=filters.text
-                )
-                password = password_ask.text
-                try:
-                    await client.check_password(password)
-                except PasswordHashInvalid:
-                    await password_ask.reply(
-                        "❌ **كلمة المرور غير صحيحة!**\nيرجى إعادة المحاولة.\n/start",
-                        quote=True
-                    )
-                    await client.disconnect()
-                    return
-            except (PhoneCodeInvalid, PhoneCodeExpired):
-                await code_ask.reply(
-                    "❌ **الكود غير صحيح أو منتهي الصلاحية!**\nيرجى إعادة المحاولة.\n/start",
-                    quote=True
-                )
-                await client.disconnect()
-                return
-            
-            rep = await m.reply("⏳ **جاري استخراج الجلسة...**", quote=True)
-            get = await client.get_me()
-            string_session = await client.export_session_string()
-            
-            await client.send_message(
-                'me',
-                f"**🔑 جلسة بايروجرام**\n\n"
-                f"`{string_session}`\n\n"
-                f"👤 **الاسم:** {get.first_name}\n"
-                f"🆔 **المعرف:** {get.id}\n"
-                f"📱 **الرقم:** {phone}"
-            )
-            
-            await rep.delete()
-            await client.disconnect()
-            
-            await app.send_message(
-                m.chat.id,
-                f"""
-**✅ تم استخراج الجلسة بنجاح!**
+    # Developer Section
+    if m.text == "👨‍💻 تواصل مع المطور":
+        dev_text = f"""
+👨‍💻 **المطور**
 
-👤 **الاسم:** {get.first_name}
-🆔 **المعرف:** `{get.id}`
-📱 **الرقم:** {phone}
-📌 **النوع:** Pyrogram
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
 
-🔒 **تم حفظ الجلسة في رسائلك المحفوظة**
+🆔 **المعرف:** @ELHYBA
+📌 **الاسم:** ELHYBA
+🌐 **المنصة:** Telegram
+💼 **المجال:** برمجة البوتات والتطبيقات
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+📱 **طرق التواصل:**
+• اضغط على زر التواصل أدناه
+• ارسال رسالة مباشرة
+• الرد خلال 24 ساعة
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+💡 **الخدمات المتوفرة:**
+✅ تصميم بوتات تيليجرام
+✅ استخراج جلسات
+✅ حل مشاكل تقنية
+✅ تطوير برمجيات
+✅ استشارات برمجية
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+📢 **للانضمام لقناة الدعم:** @u_t_r2
+💫 **للتواصل اضغط على الزر أدناه**
 """
-            )
-            
-        except Exception as e:
-            await m.reply(f"❌ **حدث خطأ:** {str(e)[:200]}\n/start", quote=True)
-            try:
-                await client.disconnect()
-            except:
-                pass
+        await m.reply(dev_text, quote=True, reply_markup=DEV_KEYBOARD)
         return
 
-    if m.text == "📱 تيليثون":
-        rep = await m.reply(
-            "⏳ **جاري التجهيز...**",
-            reply_markup=ReplyKeyboardRemove(),
-            quote=True
+    # Default response for any other text
+    await m.reply(
+        """
+❓ **عذراً، لم أفهم طلبك**
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+📌 **الخيارات المتاحة:**
+• 👨‍💻 تواصل مع المطور
+• ℹ️ معلومات عن البوت
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+📢 **قناة الدعم:** @u_t_r2
+💡 **للتواصل المباشر:** @u_t_r
+""",
+        reply_markup=MAIN_KEYBOARD,
+        quote=True
+    )
+
+# Handle callback queries
+@app.on_callback_query()
+async def handle_callback(app, callback_query):
+    if callback_query.data == "back_to_main":
+        await callback_query.message.delete()
+        await callback_query.message.reply(
+            "✨ **تم العودة إلى القائمة الرئيسية** ✨\n\n"
+            "📌 اختر الخدمة التي تريدها:",
+            reply_markup=MAIN_KEYBOARD
         )
-        
-        client = TelegramClient(StringSession(), api_id, api_hash)
-        
-        try:
-            await client.connect()
-            await rep.delete()
-            
-            phone_ask = await m.chat.ask(
-                "📱 **أرسل رقم هاتفك مع رمز الدولة**\nمثال: +963995×××××",
-                reply_to_message_id=m.id,
-                filters=filters.text
-            )
-            phone = phone_ask.text.strip()
-            
-            try:
-                await client.send_code_request(phone)
-            except PhoneNumberInvalidError:
-                await phone_ask.reply(
-                    "❌ **رقم الهاتف غير صحيح!**\nيرجى إعادة المحاولة.\n/start",
-                    quote=True
-                )
-                await client.disconnect()
-                return
-            except Exception as e:
-                await phone_ask.reply(
-                    f"❌ **حدث خطأ:** {str(e)[:100]}\nيرجى المحاولة لاحقًا.\n/start",
-                    quote=True
-                )
-                await client.disconnect()
-                return
-            
-            code_ask = await m.chat.ask(
-                "🔑 **أرسل الكود الذي وصل إليك**\nإذا كان الكود 12345 أرسله كالتالي: 1 2 3 4 5",
-                filters=filters.text
-            )
-            code = code_ask.text.replace(" ", "")
-            
-            try:
-                await client.sign_in(phone, code)
-            except SessionPasswordNeededError:
-                password_ask = await m.chat.ask(
-                    "🔐 **تفعيل التحقق بخطوتين**\nأرسل كلمة مرور التحقق بخطوتين:",
-                    filters=filters.text
-                )
-                password = password_ask.text
-                try:
-                    await client.sign_in(password=password)
-                except PasswordHashInvalidError:
-                    await password_ask.reply(
-                        "❌ **كلمة المرور غير صحيحة!**\nيرجى إعادة المحاولة.\n/start",
-                        quote=True
-                    )
-                    await client.disconnect()
-                    return
-            except (PhoneCodeExpiredError, PhoneCodeInvalidError):
-                await code_ask.reply(
-                    "❌ **الكود غير صحيح أو منتهي الصلاحية!**\nيرجى إعادة المحاولة.\n/start",
-                    quote=True
-                )
-                await client.disconnect()
-                return
-            
-            rep = await m.reply("⏳ **جاري استخراج الجلسة...**", quote=True)
-            get = await client.get_me()
-            string_session = client.session.save()
-            
-            await client.send_message(
-                'me',
-                f"**🔑 جلسة تيليثون**\n\n"
-                f"`{string_session}`\n\n"
-                f"👤 **الاسم:** {get.first_name}\n"
-                f"🆔 **المعرف:** {get.id}\n"
-                f"📱 **الرقم:** {phone}"
-            )
-            
-            await rep.delete()
-            await client.disconnect()
-            
-            await app.send_message(
-                m.chat.id,
-                f"""
-**✅ تم استخراج الجلسة بنجاح!**
+        await callback_query.answer()
+    else:
+        await callback_query.answer()
 
-👤 **الاسم:** {get.first_name}
-🆔 **المعرف:** `{get.id}`
-📱 **الرقم:** {phone}
-📌 **النوع:** Telethon
-
-🔒 **تم حفظ الجلسة في رسائلك المحفوظة**
-"""
-            )
-            
-        except Exception as e:
-            await m.reply(f"❌ **حدث خطأ:** {str(e)[:200]}\n/start", quote=True)
-            try:
-                await client.disconnect()
-            except:
-                pass
-        return
-
-print("🚀 جاري تشغيل بوت استخراج الجلسات...")
+print("🚀 جاري تشغيل بوت التواصل مع المطور...")
+print("👨‍💻 المطور: @ELHYBA")
+print("📢 قناة الدعم: https://t.me/u_t_r2")
+print("📱 للتواصل: https://t.me/u_t_r")
+print("🤖 توكن البوت: 8909739497:AAHBUGLmeligI-TX3kZKlQ_8nTZK61TKVtI")
 app.start()
-print("✅ تم تشغيل البوت بنجاح @ELHYBA")
-print("📱 البوت جاهز لاستخراج الجلسات")
+print("✅ تم تشغيل البوت بنجاح!")
+print("📱 البوت جاهز للتواصل")
 idle()
