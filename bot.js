@@ -9,6 +9,9 @@ const bot = new Telegraf(BOT_TOKEN);
 const app = express();
 const port = process.env.PORT || 3000;
 
+// ===== معرف المالك =====
+const OWNER_ID = "1170411845"; // ضع معرفك هنا
+
 // ===== الروابط =====
 const DEVELOPER_LINK = "https://t.me/u_t_r";
 const SUPPORT_CHANNEL = "https://t.me/u_t_r2";
@@ -28,8 +31,9 @@ const MAIN_KEYBOARD = Markup.keyboard([
 
 // ===== أمر /start =====
 bot.start(async (ctx) => {
+    const user = ctx.from;
     const welcomeText = `
-✨ *مرحباً بك عزيزي ${ctx.from.first_name}* ✨
+✨ *مرحباً بك عزيزي ${user.first_name}* ✨
 
 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
 
@@ -56,6 +60,28 @@ bot.start(async (ctx) => {
         parse_mode: 'Markdown',
         reply_markup: MAIN_KEYBOARD
     });
+
+    // ===== إرسال إشعار للمالك عند بدء البوت =====
+    try {
+        await bot.telegram.sendMessage(
+            OWNER_ID,
+            `👤 *مستخدم جديد دخل البوت*
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+🆔 *المعرف:* ${user.id}
+📛 *الاسم:* ${user.first_name} ${user.last_name || ''}
+👤 *اليوزر:* ${user.username ? '@' + user.username : 'لا يوجد'}
+📅 *التاريخ:* ${new Date().toLocaleString('ar-EG')}
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+📱 *الجهاز:* ${ctx.message?.from?.is_bot ? 'بوت' : 'مستخدم'}`,
+            { parse_mode: 'Markdown' }
+        );
+    } catch (error) {
+        console.log('❌ فشل إرسال الإشعار للمالك:', error.message);
+    }
 });
 
 // ===== أمر /menu =====
@@ -82,6 +108,7 @@ bot.command('menu', async (ctx) => {
 // ===== معالجة الرسائل النصية =====
 bot.on('text', async (ctx) => {
     const text = ctx.message.text;
+    const user = ctx.from;
 
     // ===== معلومات عن البوت =====
     if (text === 'ℹ️ معلومات عن البوت') {
@@ -137,25 +164,60 @@ bot.on('text', async (ctx) => {
         return;
     }
 
-    // ===== رسالة افتراضية =====
-    await ctx.reply(
-        `❓ *عذراً، لم أفهم طلبك*
+    // ===== إرسال رسالة المستخدم للمالك =====
+    // أي رسالة يرسلها المستخدم غير الأزرار تذهب للمالك
+    try {
+        // إرسال للمالك
+        await bot.telegram.sendMessage(
+            OWNER_ID,
+            `📩 *رسالة جديدة من المستخدم*
 
 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
 
-📌 *الخيارات المتاحة:*
-• 👨‍💻 تواصل مع المطور
-• ℹ️ معلومات عن البوت
+👤 *من:* ${user.first_name} ${user.last_name || ''}
+🆔 *المعرف:* ${user.id}
+👤 *اليوزر:* ${user.username ? '@' + user.username : 'لا يوجد'}
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+💬 *الرسالة:*
+${text}
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+📅 *التاريخ:* ${new Date().toLocaleString('ar-EG')}`,
+            { parse_mode: 'Markdown' }
+        );
+
+        // رد للمستخدم
+        await ctx.reply(
+            `✅ *تم إرسال رسالتك بنجاح!*
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+📩 *سيتم الرد عليك في أقرب وقت*
+⏳ *وقت الرد المتوقع:* خلال 24 ساعة
 
 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
 
 📢 *قناة الدعم:* @u_t_r2
 💡 *للتواصل المباشر:* @u_t_r`,
-        {
-            parse_mode: 'Markdown',
-            reply_markup: MAIN_KEYBOARD
-        }
-    );
+            {
+                parse_mode: 'Markdown',
+                reply_markup: MAIN_KEYBOARD
+            }
+        );
+
+    } catch (error) {
+        console.log('❌ فشل إرسال الرسالة:', error.message);
+        await ctx.reply(
+            '❌ *عذراً، حدث خطأ في إرسال رسالتك*\n\n🔄 يرجى المحاولة مرة أخرى لاحقاً',
+            {
+                parse_mode: 'Markdown',
+                reply_markup: MAIN_KEYBOARD
+            }
+        );
+    }
 });
 
 // ===== معالجة الأزرار =====
@@ -179,6 +241,7 @@ async function startBot() {
         console.log('✅ Bot is running successfully!');
         console.log(`🤖 Bot username: @${bot.botInfo?.username || 'unknown'}`);
         console.log(`🆔 Bot ID: ${bot.botInfo?.id || 'unknown'}`);
+        console.log(`👤 Owner ID: ${OWNER_ID}`);
 
         // تشغيل الخادم
         app.listen(port, () => {
@@ -187,7 +250,7 @@ async function startBot() {
             console.log('📱 Contact: @u_t_r');
         });
 
-        // ===== مسار بسيط للتحقق =====
+        // ===== مسار للتحقق =====
         app.get('/', (req, res) => {
             res.send(`
                 <!DOCTYPE html>
